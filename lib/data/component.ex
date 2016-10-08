@@ -1,7 +1,5 @@
 defmodule Mensendi.Data.Component do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Delimiters, as: Delimiters
-  alias Mensendi.Data.SubComponent, as: SubComponent
+  alias Mensendi.Data.{Component, Delimiters, SubComponent}
 
   @type t :: %Component{subcomponents: Tuple}
 

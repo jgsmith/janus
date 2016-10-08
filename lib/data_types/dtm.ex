@@ -1,7 +1,6 @@
 defmodule Mensendi.DataTypes.DTM do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Field, as: Field
-  alias Mensendi.DataTypes.DTM, as: DTM
+  alias Mensendi.Data.{Component, Field}
+  alias Mensendi.DataTypes.DTM
 
   @type t :: %DTM{value: String.t, datetime: DateTime | nil}
 

@@ -1,5 +1,5 @@
 defmodule MessageGrammar do
-  alias Mensendi.Data.Segment, as: Segment
+  alias Mensendi.Data.Segment
 
   @type t :: %MessageGrammar{spec: List}
 

@@ -1,5 +1,5 @@
 defmodule Mensendi.Data.Delimiters do
-  alias Mensendi.Data.Delimiters, as: Delimiters
+  alias Mensendi.Data.Delimiters
 
   @type t :: %Delimiters{
     segments: String.t,

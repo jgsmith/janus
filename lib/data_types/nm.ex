@@ -1,6 +1,5 @@
 defmodule Mensendi.DataTypes.NM do
-  alias Mensendi.DataTypes.NM, as: NM
-  alias Mensendi.DataTypes.ST, as: ST
+  alias Mensendi.DataTypes.{NM, ST}
 
   @type t :: %NM{value: Float}
 

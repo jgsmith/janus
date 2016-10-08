@@ -1,7 +1,6 @@
 defmodule Mensendi.DataTypes.TX do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Field, as: Field
-  alias Mensendi.DataTypes.TX, as: TX
+  alias Mensendi.Data.{Component, Field}
+  alias Mensendi.DataTypes.TX
 
   @type t :: %TX{value: String.t}
 

@@ -1,7 +1,6 @@
 defmodule Mensendi.DataTypes.DT do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Field, as: Field
-  alias Mensendi.DataTypes.DT, as: DT
+  alias Mensendi.Data.{Component, Field}
+  alias Mensendi.DataTypes.DT
 
   @type t :: %DT{value: String.t, date: Date | nil}
 
