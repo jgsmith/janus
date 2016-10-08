@@ -1,5 +1,5 @@
 defmodule VIDDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :version_id, :ID
   component :internationalization_code, :CE

@@ -1,6 +1,6 @@
 defmodule XADDataType do
   # Address
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :street_address, :SAD
   component :other_designation, :ST

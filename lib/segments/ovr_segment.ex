@@ -1,5 +1,5 @@
 defmodule OVRSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :override_type, :CWE
   field :override_code, :CWE

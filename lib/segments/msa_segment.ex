@@ -1,5 +1,5 @@
 defmodule MSASegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :ack_code, :ID
   field :message_control_id, :ST

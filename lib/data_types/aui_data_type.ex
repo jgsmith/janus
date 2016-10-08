@@ -1,6 +1,6 @@
 defmodule AUIDataType do
   # Authorization Information
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :authorization_number, :ST
   component :date, :DT

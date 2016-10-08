@@ -1,5 +1,5 @@
 defmodule MSGDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :message_code, :ID
   component :trigger_event, :ID

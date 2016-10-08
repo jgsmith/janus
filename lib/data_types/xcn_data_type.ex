@@ -1,6 +1,6 @@
 defmodule XCNDataType do
   # Coded with exceptions
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :id_number, :ST
   component :family_name, :FN

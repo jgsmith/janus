@@ -1,5 +1,5 @@
 defmodule ERRSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :code_and_location, :ELD
   field :location, :ERL

@@ -1,6 +1,6 @@
 defmodule XTNDataType do
   # Extended telecommunication number
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :telephone_number, :ST
   component :use_code, :ID

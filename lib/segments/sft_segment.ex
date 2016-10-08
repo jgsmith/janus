@@ -1,5 +1,5 @@
 defmodule SFTSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :vendor_organization, :XON
   field :certified_version, :ST

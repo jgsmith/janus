@@ -1,5 +1,5 @@
 defmodule BTSSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :message_count, :ST
   field :comment, :ST

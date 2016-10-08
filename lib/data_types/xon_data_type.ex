@@ -1,6 +1,6 @@
 defmodule XONDataType do
   # Coded with exceptions
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :name, :ST
   component :name_type_code, :IS

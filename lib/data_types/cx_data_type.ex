@@ -1,6 +1,6 @@
 defmodule CXDataType do
   # Coded with exceptions
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :id_number, :ST
   component :check_digit, :ST

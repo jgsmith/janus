@@ -1,5 +1,5 @@
 defmodule EVNSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :type_code, :ID
   field :recorded_date_time, :TS

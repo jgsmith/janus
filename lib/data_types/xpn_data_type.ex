@@ -1,5 +1,5 @@
 defmodule XPNDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :family_name, :FN
   component :given_name, :ST

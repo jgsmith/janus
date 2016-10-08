@@ -1,5 +1,5 @@
 defmodule NTESegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :set_id, :SI
   field :source_of_comment, :ID

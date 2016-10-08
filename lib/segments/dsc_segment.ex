@@ -1,5 +1,5 @@
 defmodule DSCSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :pointer, :ST
   field :style, :ID

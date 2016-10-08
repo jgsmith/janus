@@ -1,6 +1,6 @@
 defmodule SADDataType do
   # Address
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :street_or_mailing_address, :ST
   component :street_name, :ST

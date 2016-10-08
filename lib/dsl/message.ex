@@ -1,10 +1,11 @@
-defmodule MessageDSL do
+defmodule Mensendi.DSL.Message do
   alias Mensendi.Data.Message, as: Message
   alias Mensendi.Data.MessageEvent, as: MessageEvent
 
   @doc false
   defmacro __using__(_opts) do
     quote do
+      alias Mensendi.Data.Message, as: Message
       alias Mensendi.Data.MessageEvent, as: MessageEvent
       import unquote(__MODULE__)
 
@@ -15,7 +16,7 @@ defmodule MessageDSL do
       @current_message_structure nil
       @current_ack_structure nil
 
-      @before_compile MessageDSL
+      @before_compile unquote(__MODULE__)
     end
   end
 

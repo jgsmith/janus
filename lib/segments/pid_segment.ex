@@ -1,5 +1,5 @@
 defmodule PIDSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :set_id, :SI
   field :id, :CX

@@ -1,6 +1,6 @@
 defmodule DLNDataType do
   # Address
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :license_number, :ST
   component :issuing_authority, :IS

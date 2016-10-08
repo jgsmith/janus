@@ -1,5 +1,5 @@
 defmodule HDDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :namespace_id, :IS
   component :universal_id, :ST

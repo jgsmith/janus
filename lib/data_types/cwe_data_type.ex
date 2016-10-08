@@ -1,6 +1,6 @@
 defmodule CWEDataType do
   # Coded with exceptions
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :identifier, :ST
   component :text, :ST

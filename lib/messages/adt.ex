@@ -1,5 +1,5 @@
 defmodule Mensendi.Messages.ADT do
-  use MessageDSL
+  use Mensendi.DSL.Message
 
   message_type :ADT
 

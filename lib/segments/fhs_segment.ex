@@ -1,5 +1,5 @@
 defmodule FHSSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :encoding_characters, :ST
   field :sending_application, :HD

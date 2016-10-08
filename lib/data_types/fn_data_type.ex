@@ -1,5 +1,5 @@
 defmodule FNDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :surname, :ST
   component :own_surname_prefix, :ST

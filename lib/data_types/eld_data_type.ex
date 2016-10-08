@@ -1,5 +1,5 @@
 defmodule ELDDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :segment_id, :ST
   component :segment_sequence, :NM

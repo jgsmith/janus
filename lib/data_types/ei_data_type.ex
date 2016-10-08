@@ -1,5 +1,5 @@
 defmodule EIDataType do
-  use DataTypeDSL
+  use Mensendi.DSL.DataType
 
   component :identifier, :ST
   component :namespace_id, :IS

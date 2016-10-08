@@ -1,13 +1,13 @@
-defmodule DataTypeDSL do
+defmodule Mensendi.DSL.DataType do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      import DataTypeDSL
+      import unquote(__MODULE__)
 
       @component_names []
       @component_types []
 
-      @before_compile DataTypeDSL
+      @before_compile unquote(__MODULE__)
     end
   end
 

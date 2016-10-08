@@ -1,13 +1,13 @@
-defmodule SegmentDSL do
+defmodule Mensendi.DSL.Segment do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      import SegmentDSL
+      import unquote(__MODULE__)
 
       @field_names [:segment_name]
       @field_types [:ST]
 
-      @before_compile SegmentDSL
+      @before_compile unquote(__MODULE__)
     end
   end
 

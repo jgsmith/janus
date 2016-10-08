@@ -1,5 +1,5 @@
 defmodule MSHSegment do
-  use SegmentDSL
+  use Mensendi.DSL.Segment
 
   field :enc_chars, :ST
   field :sending_app, :HD
