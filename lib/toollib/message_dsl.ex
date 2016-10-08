@@ -48,11 +48,11 @@ defmodule MessageDSL do
     quote do
       unquote(process_event_info(nil))
 
-      @spec find_message_event(Message.t) :: MessageEvent.t
+      @spec find_message_event(Mensendi.Data.Message.t) :: Mensendi.Data.MessageEvent.t
       def find_message_event(message) do
         # find out if the message type is in our list or not
-        msh = 
-          List.first(Message.segments(message, "MSH"))
+        msh =
+          List.first(Mensendi.Data.Message.segments(message, "MSH"))
           |> MSHSegment.from_segment
         # message_type = msh.message_type.message_event
         trigger_code = msh.message_type.trigger_event
@@ -65,7 +65,7 @@ defmodule MessageDSL do
 
   defp process_event_info(type) do
     quote do
-      @events [%MessageEvent{
+      @events [%Mensendi.Data.MessageEvent{
         event: Atom.to_string(@current_event),
         description: @current_description,
         message_structure: @current_message_structure,

@@ -3,9 +3,9 @@ defmodule ERRSegmentTest do
   doctest ERRSegment
 
   test "gets the right data from the raw segment" do
-    segment = Segment.from_string(
+    segment = Mensendi.Data.Segment.from_string(
       "ERR||PID^5|101^required field missing^HL70357|E",
-      %Delimiters{}
+      %Mensendi.Data.Delimiters{}
     )
     |> ERRSegment.from_segment
 

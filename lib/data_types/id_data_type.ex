@@ -3,14 +3,14 @@ defmodule IDDataType do
 
   defstruct [value: ""]
 
-  @spec from_field(Field.t) :: t
+  @spec from_field(Mensendi.Data.Field.t) :: t
   def from_field(field) do
-    %IDDataType{value: Field.to_string(field)}
+    %IDDataType{value: Mensendi.Data.Field.to_string(field)}
   end
 
-  @spec from_component(Component.t) :: t
+  @spec from_component(Mensendi.Data.Component.t) :: t
   def from_component(component) do
-    %IDDataType{value: Component.to_string(component, %Delimiters{})}
+    %IDDataType{value: Mensendi.Data.Component.to_string(component, %Mensendi.Data.Delimiters{})}
   end
 
   @spec from_string(String.t) :: t

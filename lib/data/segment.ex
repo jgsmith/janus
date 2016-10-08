@@ -1,11 +1,11 @@
-defmodule Segment do
-  @type t :: %Segment{name: String.t, children: List, fields: List}
+defmodule Mensendi.Data.Segment do
+  @type t :: %Mensendi.Data.Segment{name: String.t, children: List, fields: List}
 
   defstruct [name: "", children: [], fields: []]
 
   @special_segments ["MSH", "BHS", "FHS"]
 
-  @spec to_string(Segment.t, Delimiters.t) :: String.t
+  @spec to_string(Mensendi.Data.Segment.t, Mensendi.Data.Delimiters.t) :: String.t
   def to_string(segment, delimiters) do
     # each field, followed by each child
     # segments are separated by \r a per HL7 standards
@@ -14,7 +14,7 @@ defmodule Segment do
         delimiters.fields,
         fn(field) ->
           field
-          |> Enum.map_join(delimiters.repetitions, &(Field.to_string(&1, delimiters)))
+          |> Enum.map_join(delimiters.repetitions, &(Mensendi.Data.Field.to_string(&1, delimiters)))
         end
       )]
       ++ Enum.map(segment.children, &(to_string(&1, delimiters)))
@@ -32,7 +32,7 @@ defmodule Segment do
   def segment_string_with_delimiters(string, delimiters) do
     string
     |> String.split(delimiters.fields)
-    |> List.replace_at(1, Delimiters.to_string(delimiters))
+    |> List.replace_at(1, Mensendi.Data.Delimiters.to_string(delimiters))
     |> Enum.join(delimiters.fields)
   end
 
@@ -43,34 +43,34 @@ defmodule Segment do
       |> String.split(delimiters.fields)
 
     {:ok, name} = Enum.fetch(split_string, 0)
-    %Segment{
+    %Mensendi.Data.Segment{
       name: name,
       fields: Enum.map(split_string,
         fn(field) ->
           field
           |> String.split(delimiters.repetitions)
-          |> Enum.map(&(Field.from_string(&1, delimiters)))
+          |> Enum.map(&(Mensendi.Data.Field.from_string(&1, delimiters)))
         end
       )
     }
   end
 
   def with_child(segment, child) do
-    %Segment{segment | children: (segment.children ++ [child])}
+    %Mensendi.Data.Segment{segment | children: (segment.children ++ [child])}
   end
 
   def with_children(segment, children) do
-    %Segment{segment | children: (segment.children ++ children)}
+    %Mensendi.Data.Segment{segment | children: (segment.children ++ children)}
   end
 
   # N.B.: The indices start at zero, not 1
-  @spec el(Segment.t, {Integer, Integer, Integer}) :: List
+  @spec el(Mensendi.Data.Segment.t, {Integer, Integer, Integer}) :: List
   def el(segment, {fieldId, componentId, subcomponentId}) do
     Access.get(segment.fields, fieldId, [])
     |> Enum.map(fn(field) ->
         field
-        |> Field.get_component(componentId)
-        |> Component.get_subcomponent(subcomponentId)
+        |> Mensendi.Data.Field.get_component(componentId)
+        |> Mensendi.Data.Component.get_subcomponent(subcomponentId)
       end
     )
     |> Enum.map(fn(subcomponent) ->
@@ -87,7 +87,7 @@ defmodule Segment do
     children(segment, [name])
   end
 
-  @spec children(Segment.t, List | MapSet) :: List
+  @spec children(Mensendi.Data.Segment.t, List | MapSet) :: List
   def children(segment, names) when not is_binary(names) do
     set = MapSet.new(names)
     Enum.filter(segment.children, &(MapSet.member?(set, &1.name)))

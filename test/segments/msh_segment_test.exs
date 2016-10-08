@@ -3,9 +3,9 @@ defmodule MSHSegmentTest do
   doctest MSHSegment
 
   test "gets the right data from the raw segment" do
-    segment = Segment.from_string(
+    segment = Mensendi.Data.Segment.from_string(
       "MSH|^~\\&|CERNER||PriorityHealth||20160102||ORU^R01|Q479004375T431430612|P|2.3",
-      %Delimiters{}
+      %Mensendi.Data.Delimiters{}
     )
     |> MSHSegment.from_segment
 

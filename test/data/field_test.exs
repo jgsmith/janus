@@ -1,20 +1,20 @@
-defmodule FieldTest do
+defmodule Mensendi.Data.FieldTest do
   use ExUnit.Case
-  doctest Field
+  doctest Mensendi.Data.Field
 
   test "from_string" do
-    field = Field.from_string("abc^def", %Delimiters{})
-    assert Enum.map(field.components, &(Component.to_string(&1, %Delimiters{}))) == [ "abc", "def" ]
+    field = Mensendi.Data.Field.from_string("abc^def", %Mensendi.Data.Delimiters{})
+    assert Enum.map(field.components, &(Mensendi.Data.Component.to_string(&1, %Mensendi.Data.Delimiters{}))) == [ "abc", "def" ]
   end
 
   test "to_string" do
-    field = %Field{
+    field = %Mensendi.Data.Field{
       components: [
-        %Component{subcomponents: {"abc", "def"}},
-        %Component{subcomponents: {"uvw", "xyz"}}
+        %Mensendi.Data.Component{subcomponents: {"abc", "def"}},
+        %Mensendi.Data.Component{subcomponents: {"uvw", "xyz"}}
       ]
     }
 
-    assert Field.to_string(field, %Delimiters{}) == "abc&def^uvw&xyz"
+    assert Mensendi.Data.Field.to_string(field, %Mensendi.Data.Delimiters{}) == "abc&def^uvw&xyz"
   end
 end
