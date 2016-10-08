@@ -59,7 +59,7 @@ defmodule Mensendi.DSL.DataType do
                        :%, [], [{
                          :__aliases__,
                          [alias: false],
-                         [Module.concat([Atom.to_string(type) <> "DataType"])]
+                         [Module.concat([:Mensendi, :DataTypes, type])]
                        }, {:%{}, [], []}]
                      })
                    end)
@@ -70,7 +70,7 @@ defmodule Mensendi.DSL.DataType do
                       {:., [], [{
                         :__aliases__,
                         [alias: false],
-                        [Module.concat([Atom.to_string(type) <> "DataType"])]
+                        [Module.concat([:Mensendi, :DataTypes, type])]
                       }, :t]},
                       [],
                       []
@@ -157,7 +157,7 @@ defmodule Mensendi.DSL.DataType do
   defp create_derivative_thing(things, {component_names, component_types, module, empty_target}, method) do
     List.zip([component_names, component_types, things])
     |> List.foldr(empty_target, fn({name, type, thing}, acc) ->
-      data_type = Module.concat([Atom.to_string(type) <> "DataType"])
+      data_type = Module.concat([:Mensendi, :DataTypes, Atom.to_string(type)])
       Code.ensure_loaded(data_type)
       with_method = String.to_atom("with_" <> Atom.to_string(name))
       apply(module, with_method, [acc, apply(data_type, method, [thing])])

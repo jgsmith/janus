@@ -61,7 +61,7 @@ defmodule Mensendi.DSL.Segment do
                        :%, [], [{
                          :__aliases__,
                          [alias: false],
-                         [Module.concat([Atom.to_string(type) <> "DataType"])]
+                         [Module.concat([:Mensendi, :DataTypes, type])]
                        }, {:%{}, [], []}]
                      })
                    end)
@@ -72,7 +72,7 @@ defmodule Mensendi.DSL.Segment do
                       {:., [], [{
                         :__aliases__,
                         [alias: false],
-                        [Module.concat([Atom.to_string(type) <> "DataType"])]
+                        [Module.concat([:Mensendi, :DataTypes, type])]
                       }, :t]},
                       [],
                       []
@@ -148,7 +148,7 @@ defmodule Mensendi.DSL.Segment do
     # field_pairs: [{name, type, %Field{}}]
     field_pairs |> List.foldr(empty_target,
       fn({name, type, fields}, acc) ->
-        data_type = Module.concat([Atom.to_string(type) <> "DataType"])
+        data_type = Module.concat([:Mensendi, :DataTypes, type])
         Code.ensure_loaded(data_type)
         with_method = String.to_atom("with_" <> Atom.to_string(name))
         apply(module, with_method, [acc,
