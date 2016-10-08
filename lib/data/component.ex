@@ -1,4 +1,8 @@
-defmodule Component do
+defmodule Mensendi.Data.Component do
+  alias Mensendi.Data.Component, as: Component
+  alias Mensendi.Data.Delimiters, as: Delimiters
+  alias Mensendi.Data.SubComponent, as: SubComponent
+
   @type t :: %Component{subcomponents: Tuple}
 
   defstruct [subcomponents: {}]
@@ -16,7 +20,7 @@ defmodule Component do
     }
   end
 
-  def to_string(component, delimiters) do
+  def to_string(component, delimiters \\ %Delimiters{}) do
     component.subcomponents
     |> Tuple.to_list
     |> Enum.map_join(delimiters.subcomponents, &(SubComponent.encoded(&1, delimiters)))

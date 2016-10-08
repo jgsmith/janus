@@ -1,4 +1,4 @@
-defmodule SubComponent do
+defmodule Mensendi.Data.SubComponent do
   # This handles all of the escaping/unescaping of stuff in the string
   # TODO: escape/unescape code points for UTF support
   def encoded(string, delimiters) do

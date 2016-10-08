@@ -1,0 +1,43 @@
+defmodule Mensendi.Segments.PID do
+  use Mensendi.DSL.Segment
+
+  field :set_id, :SI
+  field :id, :CX
+  field :identifier_list, :CX
+  field :alternate_id, :CX
+  field :name, :XPN
+  field :mothers_maiden_name, :XPN
+  field :birth_datetime, :TS
+  field :sex, :IS
+  field :alias, :XPN
+  field :race, :CE
+  field :address, :XAD
+  field :county_code, :IS
+  field :home_phone_number, :XTN
+  field :work_phone_number, :XTN
+  field :primary_language, :CE
+  field :marital_status, :CE
+  field :religion, :CE
+  field :account_number, :CX
+  field :ssn, :ST
+  field :drivers_license_number, :DLN
+  field :mothers_identifier, :CX
+  field :ethnic_group, :CE
+  field :birthplace, :ST
+  field :multiple_birth_indicator, :ID
+  field :birth_order, :NM
+  field :citizenship, :CE
+  field :veterens_military_status, :CE
+  field :nationality, :CE
+  field :death_datetime, :TS
+  field :death_indicator, :ID
+  field :identity_unknown_indicator, :ID
+  field :identity_reliability_code, :IS
+  field :last_update_datetime, :TS
+  field :last_update_facility, :HD
+  field :species_code, :CE
+  field :breed_code, :CE
+  field :strain, :ST
+  field :production_class_code, :CE
+  field :tribal_citizenship, :CWE
+end

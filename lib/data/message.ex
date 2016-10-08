@@ -1,7 +1,11 @@
-defmodule Message do
+defmodule Mensendi.Data.Message do
+  alias Mensendi.Data.Delimiters, as: Delimiters
+  alias Mensendi.Data.Message, as: Message
+  alias Mensendi.Data.Segment, as: Segment
+
   @type t :: %Message{
     segments: List,
-    delimiters: Delimiters.t
+    delimiters: Mensendi.Data.Delimiters.t
   }
 
   defstruct [segments: [], delimiters: %Delimiters{}]

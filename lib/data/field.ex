@@ -1,4 +1,8 @@
-defmodule Field do
+defmodule Mensendi.Data.Field do
+  alias Mensendi.Data.Component, as: Component
+  alias Mensendi.Data.Delimiters, as: Delimiters
+  alias Mensendi.Data.Field, as: Field
+
   @type t :: %Field{components: List}
 
   defstruct [components: []]

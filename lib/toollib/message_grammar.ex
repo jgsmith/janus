@@ -1,4 +1,6 @@
 defmodule MessageGrammar do
+  alias Mensendi.Data.Segment, as: Segment
+
   @type t :: %MessageGrammar{spec: List}
 
   defstruct [spec: []]
@@ -109,7 +111,7 @@ defmodule MessageGrammar do
     {:error, {[], segments}}
   end
 
-  @spec gather_repeating_spec([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
+  @spec gather_repeating_spec([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Mensendi.Data.Segment.t]}}
   defp gather_repeating_spec(segments, spec) do
     case gather_segments(segments, spec) do
       {:ok, {gathered, remaining}} ->
