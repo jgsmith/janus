@@ -1,7 +1,11 @@
 defmodule MessageDSL do
+  alias Mensendi.Data.Message, as: Message
+  alias Mensendi.Data.MessageEvent, as: MessageEvent
+
   @doc false
   defmacro __using__(_opts) do
     quote do
+      alias Mensendi.Data.MessageEvent, as: MessageEvent
       import unquote(__MODULE__)
 
       @events []
@@ -48,11 +52,11 @@ defmodule MessageDSL do
     quote do
       unquote(process_event_info(nil))
 
-      @spec find_message_event(Mensendi.Data.Message.t) :: Mensendi.Data.MessageEvent.t
+      @spec find_message_event(Message.t) :: MessageEvent.t
       def find_message_event(message) do
         # find out if the message type is in our list or not
         msh =
-          List.first(Mensendi.Data.Message.segments(message, "MSH"))
+          List.first(Message.segments(message, "MSH"))
           |> MSHSegment.from_segment
         # message_type = msh.message_type.message_event
         trigger_code = msh.message_type.trigger_event
@@ -65,7 +69,7 @@ defmodule MessageDSL do
 
   defp process_event_info(type) do
     quote do
-      @events [%Mensendi.Data.MessageEvent{
+      @events [%MessageEvent{
         event: Atom.to_string(@current_event),
         description: @current_description,
         message_structure: @current_message_structure,

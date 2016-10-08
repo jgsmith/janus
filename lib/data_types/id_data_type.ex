@@ -1,16 +1,19 @@
 defmodule IDDataType do
+  alias Mensendi.Data.Component, as: Component
+  alias Mensendi.Data.Field, as: Field
+
   @type t :: %IDDataType{value: String.t}
 
   defstruct [value: ""]
 
-  @spec from_field(Mensendi.Data.Field.t) :: t
+  @spec from_field(Field.t) :: t
   def from_field(field) do
-    %IDDataType{value: Mensendi.Data.Field.to_string(field)}
+    %IDDataType{value: Field.to_string(field)}
   end
 
-  @spec from_component(Mensendi.Data.Component.t) :: t
+  @spec from_component(Component.t) :: t
   def from_component(component) do
-    %IDDataType{value: Mensendi.Data.Component.to_string(component, %Mensendi.Data.Delimiters{})}
+    %IDDataType{value: Component.to_string(component)}
   end
 
   @spec from_string(String.t) :: t

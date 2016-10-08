@@ -1,5 +1,7 @@
 defmodule Mensendi.Data.Delimiters do
-  @type t :: %Mensendi.Data.Delimiters{
+  alias Mensendi.Data.Delimiters, as: Delimiters
+
+  @type t :: %Delimiters{
     segments: String.t,
     fields: String.t,
     components: String.t,
@@ -25,26 +27,26 @@ defmodule Mensendi.Data.Delimiters do
   end
 
   def with_segments(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | segments: s}
+    %Delimiters{delimiters | segments: s}
   end
 
   def with_fields(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | fields: s}
+    %Delimiters{delimiters | fields: s}
   end
 
   def with_components(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | components: s}
+    %Delimiters{delimiters | components: s}
   end
 
   def with_subcomponents(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | subcomponents: s}
+    %Delimiters{delimiters | subcomponents: s}
   end
 
   def with_repetitions(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | repetitions: s}
+    %Delimiters{delimiters | repetitions: s}
   end
 
   def with_escapes(delimiters, s) do
-    %Mensendi.Data.Delimiters{delimiters | escapes: s}
+    %Delimiters{delimiters | escapes: s}
   end
 end

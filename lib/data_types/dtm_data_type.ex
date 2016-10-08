@@ -1,19 +1,22 @@
 defmodule DTMDataType do
+  alias Mensendi.Data.Component, as: Component
+  alias Mensendi.Data.Field, as: Field
+
   @type t :: %DTMDataType{value: String.t, datetime: DateTime | nil}
 
   defstruct [value: "", datetime: nil]
 
-  @spec from_field(Mensendi.Data.Field.t) :: t
+  @spec from_field(Field.t) :: t
   def from_field(field) do
     field
-    |> Mensendi.Data.Field.to_string
+    |> Field.to_string
     |> from_string
   end
 
-  @spec from_component(Mensendi.Data.Component.t) :: t
+  @spec from_component(Component.t) :: t
   def from_component(component) do
     component
-    |> Mensendi.Data.Component.to_string(%Mensendi.Data.Delimiters{})
+    |> Component.to_string
     |> from_string
   end
 

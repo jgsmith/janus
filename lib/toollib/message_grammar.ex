@@ -1,4 +1,6 @@
 defmodule MessageGrammar do
+  alias Mensendi.Data.Segment, as: Segment
+
   @type t :: %MessageGrammar{spec: List}
 
   defstruct [spec: []]
@@ -46,12 +48,12 @@ defmodule MessageGrammar do
     Enum.filter(segments, &(MapSet.member?(allowed, &1.name)))
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], []) :: {:ok, {[], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], []) :: {:ok, {[], [Segment.t]}}
   defp gather_segments(segments, []) do
     {:ok, {[], segments}}
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments(segments, [h | spec]) when is_list(h) do
     case gather_segments(segments, h) do
       {:ok, {gathered, remaining}} ->
@@ -66,7 +68,7 @@ defmodule MessageGrammar do
     {:error, {[], []}}
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments([candidate_segment | remaining], [h | spec]) when is_binary(h) do
     cond do
       candidate_segment.name == h ->
@@ -76,17 +78,17 @@ defmodule MessageGrammar do
     end
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments(segments, [:with_children | spec]) do
     case gather_segments(segments, spec) do
       {:ok, {[parent | children], remaining}} ->
-        {:ok, {[parent |> Mensendi.Data.Segment.with_children(children)], remaining}}
+        {:ok, {[parent |> Segment.with_children(children)], remaining}}
       {:ok, {[], remaining}} -> {:ok, {[], remaining}}
       {:error, stuff} -> {:error, stuff}
     end
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments(segments, [:optional | spec]) do
     case gather_segments(segments, spec) do
       {:ok, stuff} -> {:ok, stuff}
@@ -94,7 +96,7 @@ defmodule MessageGrammar do
     end
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments(segments, [:repeatable | spec]) do
     case gather_segments(segments, spec) do
       {:ok, {gathered, remaining}} ->
@@ -104,12 +106,12 @@ defmodule MessageGrammar do
     end
   end
 
-  @spec gather_segments([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {:error, {[], [Mensendi.Data.Segment.t]}}
+  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {:error, {[], [Segment.t]}}
   defp gather_segments(segments, [h | _spec]) when is_atom(h) do
     {:error, {[], segments}}
   end
 
-  @spec gather_repeating_spec([Mensendi.Data.Segment.t], [String.t|atom|List]) :: {atom, {[Mensendi.Data.Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_repeating_spec([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Mensendi.Data.Segment.t]}}
   defp gather_repeating_spec(segments, spec) do
     case gather_segments(segments, spec) do
       {:ok, {gathered, remaining}} ->

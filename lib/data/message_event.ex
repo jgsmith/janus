@@ -1,5 +1,7 @@
 defmodule Mensendi.Data.MessageEvent do
-  @type t :: %Mensendi.Data.MessageEvent{
+  alias Mensendi.Data.MessageEvent, as: MessageEvent
+
+  @type t :: %MessageEvent{
     event: atom,
     description: String.t,
     message_structure: MessageGrammar.t,
