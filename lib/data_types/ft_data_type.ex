@@ -1,5 +1,5 @@
-defmodule FXDataType do
-  @type t :: %FXDataType{value: String.t}
+defmodule FTDataType do
+  @type t :: %FTDataType{value: String.t}
 
   defstruct [value: ""]
 
@@ -19,6 +19,6 @@ defmodule FXDataType do
 
   @spec from_string(String.t) :: t
   def from_string(string) do
-    %FXDataType{value: string}
+    %FTDataType{value: string}
   end
 end

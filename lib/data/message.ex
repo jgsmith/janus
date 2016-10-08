@@ -13,27 +13,29 @@ defmodule Message do
 
   @spec from_string(String.t) :: Message.t
   def from_string(text) do
-    cond do
-      String.starts_with?(text, "MSH") ->
-        delimiters = %Delimiters{}
-          |> Delimiters.with_fields(String.at(text, 3))            # |
-          |> Delimiters.with_components(String.at(text, 4))        # ^
-          |> Delimiters.with_repetitions(String.at(text, 5))       # ~
-          |> Delimiters.with_escapes(String.at(text, 6))           # \
-          |> Delimiters.with_subcomponents(String.at(text, 7))     # &
+    if String.starts_with?(text, "MSH") do
+      delimiters =
+        %Delimiters{}
+        |> Delimiters.with_fields(String.at(text, 3))            # |
+        |> Delimiters.with_components(String.at(text, 4))        # ^
+        |> Delimiters.with_repetitions(String.at(text, 5))       # ~
+        |> Delimiters.with_escapes(String.at(text, 6))           # \
+        |> Delimiters.with_subcomponents(String.at(text, 7))     # &
 
-        segments = text
-          |> String.trim_trailing(delimiters.segments)
-          |> String.split(delimiters.segments)
-          |> Enum.map(&(Segment.from_string(&1, delimiters)))
+      segments =
+        text
+        |> String.trim_trailing(delimiters.segments)
+        |> String.split(delimiters.segments)
+        |> Enum.map(&(Segment.from_string(&1, delimiters)))
 
-        { :ok,
-          %Message{
-            delimiters: delimiters,
-            segments: segments
-          }
+      { :ok,
+        %Message{
+          delimiters: delimiters,
+          segments: segments
         }
-      true -> { :error, "First segment is not MSH" }
+      }
+    else
+      { :error, "First segment is not MSH" }
     end
   end
 
@@ -41,11 +43,7 @@ defmodule Message do
   def to_string(message) do
     message.segments
     |> Enum.map(&(Segment.to_string(&1, message.delimiters)))
-    |> Enum.filter(
-         fn(x) ->
-           is_binary(x) and x != ""
-         end
-      )
+    |> Enum.filter(&(is_binary(&1) and &1 != ""))
     |> Enum.join(message.delimiters.segments)
   end
 
@@ -61,7 +59,7 @@ defmodule Message do
     # if there are segments we don't know about, or don't fit, we ignore them
     case message |> build_structure(structure) do
       {:ok, new_message} -> {:ok, new_message }
-      {:error, stuff} -> {:error, stuff}
+      {:error, stuff}    -> {:error, stuff}
     end
   end
 
@@ -72,7 +70,7 @@ defmodule Message do
          |> MessageGrammar.parse(message.segments)
     do
       {:ok, {list, []}} -> {:ok, %Message{delimiters: message.delimiters, segments: list}}
-      {:error, stuff} -> {:error, stuff}
+      {:error, stuff}   -> {:error, stuff}
     end
   end
 

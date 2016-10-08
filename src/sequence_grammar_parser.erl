@@ -349,7 +349,7 @@ yeccpars2_10_(__Stack0) ->
 yeccpars2_12_(__Stack0) ->
  [__3,__2,__1 | __Stack] = __Stack0,
  [begin
-   [ withChildren | __2 ]
+   [ with_children | __2 ]
   end | __Stack].
 
 -compile({inline,yeccpars2_13_/1}).

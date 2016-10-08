@@ -51,8 +51,9 @@ defmodule MessageDSL do
       @spec find_message_event(Message.t) :: MessageEvent.t
       def find_message_event(message) do
         # find out if the message type is in our list or not
-        raw_msh = List.first(Message.segments(message, "MSH"))
-        msh = MSHSegment.from_segment(raw_msh)
+        msh = 
+          List.first(Message.segments(message, "MSH"))
+          |> MSHSegment.from_segment
         # message_type = msh.message_type.message_event
         trigger_code = msh.message_type.trigger_event
         @events |> Enum.find(fn(event) ->

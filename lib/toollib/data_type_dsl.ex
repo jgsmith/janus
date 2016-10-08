@@ -12,8 +12,8 @@ defmodule DataTypeDSL do
   end
 
   defmacro component(name, type \\ :ST) do
-    data_type = Module.concat([Atom.to_string(type) <> "DataType"])
-    Code.ensure_loaded(data_type)
+    Module.concat([Atom.to_string(type) <> "DataType"])
+    |> Code.ensure_loaded
 
     quote do
       @component_names [unquote(name) | @component_names]
@@ -55,24 +55,22 @@ defmodule DataTypeDSL do
 
     field_struct = List.zip([component_names, component_types])
                    |> List.foldr([], fn({name, type}, acc) ->
-                     data_type = Module.concat([Atom.to_string(type) <> "DataType"])
                      Keyword.put(acc, name, {
                        :%, [], [{
                          :__aliases__,
                          [alias: false],
-                         [data_type]
+                         [Module.concat([Atom.to_string(type) <> "DataType"])]
                        }, {:%{}, [], []}]
                      })
                    end)
 
     type_struct = List.zip([component_names, component_types])
                   |> List.foldr([], fn({name, type}, acc) ->
-                    data_type = Module.concat([Atom.to_string(type) <> "DataType"])
                     Keyword.put(acc, name, {
                       {:., [], [{
                         :__aliases__,
                         [alias: false],
-                        [data_type]
+                        [Module.concat([Atom.to_string(type) <> "DataType"])]
                       }, :t]},
                       [],
                       []
@@ -80,6 +78,9 @@ defmodule DataTypeDSL do
                   end)
 
     quote do
+      @component_names Enum.reverse(@component_names)
+      @component_types Enum.reverse(@component_types)
+
       unquote({
         :@,
         [context: __MODULE__, import: Kernel],
@@ -121,13 +122,14 @@ defmodule DataTypeDSL do
 
       def from_field(field) do
         # return an object with the right type and info pulled from the segment
-        List.zip([Enum.reverse(@component_names), Enum.reverse(@component_types), field.components])
-        |> create_derivative_field(__MODULE__, %__MODULE__{})
+        field.components
+        |> create_derivative_field({@component_names, @component_types, __MODULE__, %__MODULE__{}})
       end
 
       def from_component(component) do
-        List.zip([Enum.reverse(@component_names), Enum.reverse(@component_types), Tuple.to_list(component.subcomponents)])
-        |> create_derivative_component(__MODULE__, %__MODULE__{})
+        component.subcomponents
+        |> Tuple.to_list
+        |> create_derivative_component({@component_names, @component_types, __MODULE__, %__MODULE__{}})
       end
 
       def to_field(data) do
@@ -142,23 +144,23 @@ defmodule DataTypeDSL do
     end
   end
 
-  def create_derivative_field(component_pairs, module, empty_target) do
+  def create_derivative_field(things, meta) do
     # field_pairs: [{name, type, %Field{}}]
-    component_pairs |> List.foldr(empty_target, fn({name, type, component}, acc) ->
-      data_type = Module.concat([Atom.to_string(type) <> "DataType"])
-      Code.ensure_loaded(data_type)
-      with_method = String.to_atom("with_" <> Atom.to_string(name))
-      apply(module, with_method, [acc, apply(data_type, :from_component, [component])])
-    end)
+    create_derivative_thing(things, meta, :from_component)
   end
 
-  def create_derivative_component(subcomponent_pairs, module, empty_target) do
+  def create_derivative_component(things, meta) do
     # field_pairs: [{name, type, %Field{}}]
-    subcomponent_pairs |> List.foldr(empty_target, fn({name, type, subcomponent}, acc) ->
+    create_derivative_thing(things, meta, :from_string)
+  end
+
+  defp create_derivative_thing(things, {component_names, component_types, module, empty_target}, method) do
+    List.zip([component_names, component_types, things])
+    |> List.foldr(empty_target, fn({name, type, thing}, acc) ->
       data_type = Module.concat([Atom.to_string(type) <> "DataType"])
       Code.ensure_loaded(data_type)
       with_method = String.to_atom("with_" <> Atom.to_string(name))
-      apply(module, with_method, [acc, apply(data_type, :from_string, [subcomponent])])
+      apply(module, with_method, [acc, apply(data_type, method, [thing])])
     end)
   end
 end
