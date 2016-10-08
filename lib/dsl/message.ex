@@ -1,12 +1,10 @@
 defmodule Mensendi.DSL.Message do
-  alias Mensendi.Data.Message, as: Message
-  alias Mensendi.Data.MessageEvent, as: MessageEvent
+  alias Mensendi.Data.{Message, MessageEvent}
 
   @doc false
   defmacro __using__(_opts) do
     quote do
-      alias Mensendi.Data.Message, as: Message
-      alias Mensendi.Data.MessageEvent, as: MessageEvent
+      alias Mensendi.Data.{Message, MessageEvent}
       import unquote(__MODULE__)
 
       @events []

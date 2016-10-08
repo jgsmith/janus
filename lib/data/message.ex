@@ -1,7 +1,5 @@
 defmodule Mensendi.Data.Message do
-  alias Mensendi.Data.Delimiters, as: Delimiters
-  alias Mensendi.Data.Message, as: Message
-  alias Mensendi.Data.Segment, as: Segment
+  alias Mensendi.Data.{Delimiters, Message, Segment}
 
   @type t :: %Message{
     segments: List,
@@ -46,8 +44,8 @@ defmodule Mensendi.Data.Message do
   @spec to_string(Message.t) :: String.t
   def to_string(message) do
     message.segments
-    |> Enum.map(&(Segment.to_string(&1, message.delimiters)))
-    |> Enum.filter(&(is_binary(&1) and &1 != ""))
+    |> Stream.map(&(Segment.to_string(&1, message.delimiters)))
+    |> Stream.filter(&(is_binary(&1) and &1 != ""))
     |> Enum.join(message.delimiters.segments)
   end
 

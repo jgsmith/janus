@@ -1,6 +1,5 @@
 defmodule Mensendi.DataTypes.SI do
-  alias Mensendi.DataTypes.SI, as: SI
-  alias Mensendi.DataTypes.ST, as: ST
+  alias Mensendi.DataTypes.{SI, ST}
 
   @type t :: %SI{value: Integer}
 

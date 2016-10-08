@@ -1,7 +1,6 @@
 defmodule Mensendi.DataTypes.ID do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Field, as: Field
-  alias Mensendi.DataTypes.ID, as: ID
+  alias Mensendi.Data.{Component, Field}
+  alias Mensendi.DataTypes.ID
 
   @type t :: %ID{value: String.t}
 

@@ -1,8 +1,5 @@
 defmodule Mensendi.Data.Segment do
-  alias Mensendi.Data.Component, as: Component
-  alias Mensendi.Data.Delimiters, as: Delimiters
-  alias Mensendi.Data.Field, as: Field
-  alias Mensendi.Data.Segment, as: Segment
+  alias Mensendi.Data.{Component, Delimiters, Field, Segment}
 
   @type t :: %Segment{name: String.t, children: List, fields: List}
 
