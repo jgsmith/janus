@@ -1,4 +1,4 @@
-defmodule ADTMessage do
+defmodule Mensendi.Messages.ADT do
   use MessageDSL
 
   message_type :ADT
