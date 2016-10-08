@@ -14,8 +14,8 @@ defmodule SegmentDSL do
   defmacro field(name, type \\ :ST) do
     # make sure we have the data type loaded if it's defined - so we don't do it
     # later, when we're trying to pour a raw segment into a structured segment
-    data_type = Module.concat([Atom.to_string(type) <> "DataType"])
-    Code.ensure_loaded(data_type)
+    Module.concat([Atom.to_string(type) <> "DataType"])
+    |> Code.ensure_loaded
 
     quote do
       @field_names [unquote(name) | @field_names]
@@ -57,33 +57,22 @@ defmodule SegmentDSL do
 
     field_struct = List.zip([field_names, field_types])
                    |> List.foldr([], fn({name, type}, acc) ->
-                     data_type = Module.concat([Atom.to_string(type) <> "DataType"])
-                     data_type_module = cond do
-                       Code.ensure_loaded?(data_type) -> data_type
-                       true -> :Field
-                     end
-
                      Keyword.put(acc, name, {
                        :%, [], [{
                          :__aliases__,
                          [alias: false],
-                         [data_type_module]
+                         [Module.concat([Atom.to_string(type) <> "DataType"])]
                        }, {:%{}, [], []}]
                      })
                    end)
 
     type_struct = List.zip([field_names, field_types])
                   |> List.foldr([], fn({name, type}, acc) ->
-                    data_type = Module.concat([Atom.to_string(type) <> "DataType"])
-                    data_type_module = cond do
-                      Code.ensure_loaded?(data_type) -> data_type
-                      true -> :Field
-                    end
                     Keyword.put(acc, name, {
                       {:., [], [{
                         :__aliases__,
                         [alias: false],
-                        [data_type_module]
+                        [Module.concat([Atom.to_string(type) <> "DataType"])]
                       }, :t]},
                       [],
                       []

@@ -5,12 +5,12 @@ defmodule MessageGrammarTest do
   test "compile" do
     grammar = MessageGrammar.compile("MSH <PID [PD1] [PV1]>")
     assert grammar == %MessageGrammar{
-      spec: ["MSH", [:withChildren, "PID", [:optional, "PD1"], [:optional, "PV1"]]]
+      spec: ["MSH", [:with_children, "PID", [:optional, "PD1"], [:optional, "PV1"]]]
     }
 
     grammar2 = MessageGrammar.compile("MSH {<PID [PD1] [PV1]>}")
     assert grammar2 == %MessageGrammar{
-      spec: ["MSH", [:repeatable, [:withChildren, "PID", [:optional, "PD1"], [:optional, "PV1"]]]]
+      spec: ["MSH", [:repeatable, [:with_children, "PID", [:optional, "PD1"], [:optional, "PV1"]]]]
     }
   end
 

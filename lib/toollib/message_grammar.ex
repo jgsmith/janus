@@ -12,7 +12,9 @@ defmodule MessageGrammar do
 
   @spec allowed_segments(MessageGrammar.t) :: MapSet.type
   def allowed_segments(grammar) do
-    MapSet.new(allowed_segments_given_list(grammar.spec))
+    grammar.spec
+    |> allowed_segments_given_list
+    |> MapSet.new
   end
 
   defp allowed_segments_given_list(list) when is_list(list) do
@@ -32,9 +34,9 @@ defmodule MessageGrammar do
          |> drop_unknown_segments(grammar)
          |> gather_segments(grammar.spec)
     do
-      {:ok, {gathered, []}} -> {:ok, {gathered, []}}
+      {:ok, {gathered, []}}        -> {:ok, {gathered, []}}
       {:ok, {gathered, remaining}} -> {:error, {gathered, remaining}}
-      {:error, stuff} -> {:error, stuff}
+      {:error, stuff}              -> {:error, stuff}
     end
   end
 
@@ -75,7 +77,7 @@ defmodule MessageGrammar do
   end
 
   @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments(segments, [:withChildren | spec]) do
+  defp gather_segments(segments, [:with_children | spec]) do
     case gather_segments(segments, spec) do
       {:ok, {[parent | children], remaining}} ->
         {:ok, {[parent |> Segment.with_children(children)], remaining}}

@@ -3,36 +3,29 @@ defmodule Segment do
 
   defstruct [name: "", children: [], fields: []]
 
+  @special_segments ["MSH", "BHS", "FHS"]
+
   @spec to_string(Segment.t, Delimiters.t) :: String.t
   def to_string(segment, delimiters) do
     # each field, followed by each child
     # segments are separated by \r a per HL7 standards
     potential_string = (
-      [
-        segment.fields
-        |> Enum.map_join(delimiters.fields,
-             fn(field) ->
-               field
-               |> Enum.map_join(delimiters.repetitions, &(Field.to_string(&1, delimiters)))
-             end
-           )
-      ] ++ (
-        segment.children
-        |> Enum.map(&(to_string(&1, delimiters)))
-      )
+      [Enum.map_join(segment.fields,
+        delimiters.fields,
+        fn(field) ->
+          field
+          |> Enum.map_join(delimiters.repetitions, &(Field.to_string(&1, delimiters)))
+        end
+      )]
+      ++ Enum.map(segment.children, &(to_string(&1, delimiters)))
     )
-    |> Enum.filter(
-         fn(x) ->
-           is_binary(x) and x != ""
-         end
-      )
+    |> Enum.filter(&(is_binary(&1) and &1 != ""))
     |> Enum.join(delimiters.segments)
 
-    case segment.name do
-      "MSH" -> segment_string_with_delimiters(potential_string, delimiters)
-      "BHS" -> segment_string_with_delimiters(potential_string, delimiters)
-      "FHS" -> segment_string_with_delimiters(potential_string, delimiters)
-      _ -> potential_string
+    if segment.name in @special_segments do
+      segment_string_with_delimiters(potential_string, delimiters)
+    else
+      potential_string
     end
   end
 

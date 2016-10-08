@@ -1,5 +1,5 @@
 Nonterminals segments segment_spec.
-Terminals '[' ']' '<' '>' '{' '}' '...' segment.
+Terminals '[' ']' '<' '>' '{' '}' segment.
 Rootsymbol segments.
 
 segments -> segment_spec          : [ '$1' ].
@@ -8,7 +8,7 @@ segments -> segment_spec segments : ['$1'|'$2'].
 segment_spec -> segment           : extract_token('$1').
 segment_spec -> '[' segments ']'  : [optional | '$2'].
 segment_spec -> '{' segments '}'  : [repeatable | '$2'].
-segment_spec -> '<' segments '>'  : [withChildren | '$2'].
+segment_spec -> '<' segments '>'  : [with_children | '$2'].
 
 Erlang code.
 
