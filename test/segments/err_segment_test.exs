@@ -1,13 +1,13 @@
-defmodule ERRSegmentTest do
+defmodule Mensendi.Segments.ERRTest do
   use ExUnit.Case
-  doctest ERRSegment
+  doctest Mensendi.Segments.ERR
 
   test "gets the right data from the raw segment" do
     segment = Mensendi.Data.Segment.from_string(
       "ERR||PID^5|101^required field missing^HL70357|E",
       %Mensendi.Data.Delimiters{}
     )
-    |> ERRSegment.from_segment
+    |> Mensendi.Segments.ERR.from_segment
 
     assert List.first(segment.code_and_location) == %ELDDataType{}
     assert List.first(segment.location) == %ERLDataType{

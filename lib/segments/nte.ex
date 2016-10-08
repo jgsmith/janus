@@ -1,4 +1,4 @@
-defmodule NTESegment do
+defmodule Mensendi.Segments.NTE do
   use Mensendi.DSL.Segment
 
   field :set_id, :SI

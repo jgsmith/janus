@@ -1,4 +1,4 @@
-defmodule EVNSegment do
+defmodule Mensendi.Segments.EVN do
   use Mensendi.DSL.Segment
 
   field :type_code, :ID

@@ -1,4 +1,4 @@
-defmodule BHSSegment do
+defmodule Mensendi.Segments.BHS do
   use Mensendi.DSL.Segment
 
   field :encoding_characters, :ST

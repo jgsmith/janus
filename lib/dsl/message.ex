@@ -58,7 +58,7 @@ defmodule Mensendi.DSL.Message do
         # find out if the message type is in our list or not
         msh =
           List.first(Message.segments(message, "MSH"))
-          |> MSHSegment.from_segment
+          |> Mensendi.Segments.MSH.from_segment
         # message_type = msh.message_type.message_event
         trigger_code = msh.message_type.trigger_event
         @events |> Enum.find(fn(event) ->

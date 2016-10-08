@@ -1,4 +1,4 @@
-defmodule MSHSegment do
+defmodule Mensendi.Segments.MSH do
   use Mensendi.DSL.Segment
 
   field :enc_chars, :ST

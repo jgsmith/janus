@@ -1,4 +1,4 @@
-defmodule MSASegment do
+defmodule Mensendi.Segments.MSA do
   use Mensendi.DSL.Segment
 
   field :ack_code, :ID

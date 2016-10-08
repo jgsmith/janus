@@ -1,4 +1,4 @@
-defmodule SFTSegment do
+defmodule Mensendi.Segments.SFT do
   use Mensendi.DSL.Segment
 
   field :vendor_organization, :XON

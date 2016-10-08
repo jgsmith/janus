@@ -1,4 +1,4 @@
-defmodule OVRSegment do
+defmodule Mensendi.Segments.OVR do
   use Mensendi.DSL.Segment
 
   field :override_type, :CWE

@@ -1,4 +1,4 @@
-defmodule PIDSegment do
+defmodule Mensendi.Segments.PID do
   use Mensendi.DSL.Segment
 
   field :set_id, :SI
