@@ -12,7 +12,7 @@ defmodule Mensendi.DSL.DataType do
   end
 
   defmacro component(name, type \\ :ST) do
-    Module.concat([Atom.to_string(type) <> "DataType"])
+    Module.concat([:Mensendi, :DataTypes, type])
     |> Code.ensure_loaded
 
     quote do

@@ -1,15 +1,16 @@
 defmodule Mensendi.Data.ComponentTest do
   use ExUnit.Case
-  doctest Mensendi.Data.Component
+  alias Mensendi.Data.{Component, Delimiters}
+  doctest Component
 
   test "from_string" do
-    component = Mensendi.Data.Component.from_string("abc&def", %Mensendi.Data.Delimiters{})
+    component = Component.from_string("abc&def", %Delimiters{})
     assert component.subcomponents == {"abc", "def"}
   end
 
   test "to_string" do
-    component = %Mensendi.Data.Component{subcomponents: {"abc", "def"}}
+    component = %Component{subcomponents: {"abc", "def"}}
 
-    assert Mensendi.Data.Component.to_string(component, %Mensendi.Data.Delimiters{}) == "abc&def"
+    assert Component.to_string(component, %Delimiters{}) == "abc&def"
   end
 end

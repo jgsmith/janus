@@ -3,10 +3,12 @@ defmodule Mensendi.Mixfile do
 
   def project do
     [app: :mensendi,
-     version: "0.1.0",
+     version: "0.0.1",
+     name: "Mensendi",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     source_url: "https://github.com/jgsmith/mensendi",
      deps: deps()]
   end
 
@@ -29,6 +31,8 @@ defmodule Mensendi.Mixfile do
   defp deps do
     [
       {:dogma, "~> 0.1", only: :dev},
+      {:earmark, "~> 1.0", override: true, only: :dev},
+      {:ex_doc, "~>0.12", only: :dev},
       {:timex, "~> 3.0"}
     ]
   end

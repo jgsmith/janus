@@ -14,7 +14,7 @@ defmodule Mensendi.DSL.Segment do
   defmacro field(name, type \\ :ST) do
     # make sure we have the data type loaded if it's defined - so we don't do it
     # later, when we're trying to pour a raw segment into a structured segment
-    Module.concat([Atom.to_string(type) <> "DataType"])
+    Module.concat([:Mensendi, :DataTypes, type])
     |> Code.ensure_loaded
 
     quote do

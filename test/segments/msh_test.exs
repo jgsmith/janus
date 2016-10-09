@@ -1,17 +1,15 @@
 defmodule Mensendi.Segments.MSHTest do
   use ExUnit.Case
-  doctest Mensendi.Segments.MSH
+  alias Mensendi.Data.Segment
+  alias Mensendi.Segments.MSH
+  doctest MSH
 
   test "gets the right data from the raw segment" do
-    segment = Mensendi.Data.Segment.from_string(
-      "MSH|^~\\&|CERNER||PriorityHealth||20160102||ORU^R01|Q479004375T431430612|P|2.3",
-      %Mensendi.Data.Delimiters{}
-    )
-    |> Mensendi.Segments.MSH.from_segment
+    segment =
+      "MSH|^~\\&|CERNER||PriorityHealth||20160102||ORU^R01|Q479004375T431430612|P|2.3"
+      |> Segment.from_string
+      |> MSH.from_segment
 
-    # Note that "enc_chars" will be escaped since the Field.to_string doesn't know this
-    # is a special field that shouldn't escape the escape character
-    # assert Field.to_string(segment.enc_chars) == "^~\\E\\&"
     assert List.first(segment.sending_app).namespace_id.value == "CERNER"
     assert List.first(segment.sending_facility).namespace_id.value == ""
     assert List.first(segment.recv_app).namespace_id.value == "PriorityHealth"

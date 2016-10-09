@@ -1,36 +1,41 @@
 defmodule Mensendi.Data.SegmentTest do
   use ExUnit.Case
-  doctest Mensendi.Data.Segment
+  alias Mensendi.Data.{Component, Delimiters, Field, Segment}
+  doctest Segment
 
   test "from_string" do
-    segment = Mensendi.Data.Segment.from_string(
-      "PID|||001677980||SMITH^CURTIS||19680219|M||||||||||929645156318|123456789|||",
-      %Mensendi.Data.Delimiters{}
+    segment = Segment.from_string(
+      "PID|||001677980||SMITH^CURTIS||19680219|M||||||||||929645156318|123456789|||"
     )
 
     # we don't count empty fields on the end of the segment
     assert Enum.count(segment.fields) == 20
 
     # we can at least get back what we started with
-    assert Mensendi.Data.Segment.to_string(segment, %Mensendi.Data.Delimiters{}) ==
+    assert Segment.to_string(segment, %Delimiters{}) ==
             "PID|||001677980||SMITH^CURTIS||19680219|M||||||||||929645156318|123456789"
   end
 
   test "to_string" do
-    segment = %Mensendi.Data.Segment{
+    segment = %Segment{
       name: "ZZZ",
       fields: [
-        [%Mensendi.Data.Field{components: [%Mensendi.Data.Component{subcomponents: {"ZZZ"}}]}],
-        [%Mensendi.Data.Field{}],
-        [%Mensendi.Data.Field{}],
-        [%Mensendi.Data.Field{components: [%Mensendi.Data.Component{subcomponents: {"ABC","123"}}]}],
-        [%Mensendi.Data.Field{components: [%Mensendi.Data.Component{subcomponents: {"foo"}}, %Mensendi.Data.Component{subcomponents: {"bar"}}]}],
-        [%Mensendi.Data.Field{components: [%Mensendi.Data.Component{subcomponents: {"baz"}}]},
-         %Mensendi.Data.Field{components: [%Mensendi.Data.Component{subcomponents: {"bat"}}]}]
+        [%Field{components: [%Component{subcomponents: {"ZZZ"}}]}],
+        [%Field{}],
+        [%Field{}],
+        [%Field{components: [%Component{subcomponents: {"ABC","123"}}]}],
+        [%Field{components: [%Component{subcomponents: {"foo"}}, %Component{subcomponents: {"bar"}}]}],
+        [%Field{components: [%Component{subcomponents: {"baz"}}]},
+         %Field{components: [%Component{subcomponents: {"bat"}}]}]
       ]
     }
 
-    assert Mensendi.Data.Segment.to_string(segment, %Mensendi.Data.Delimiters{}) ==
-      "ZZZ|||ABC&123|foo^bar|baz~bat"
+    assert Segment.to_string(segment, %Delimiters{
+        fields: "!",
+        components: "@",
+        subcomponents: "#",
+        repetitions: "$"
+      }) ==
+      "ZZZ!!!ABC#123!foo@bar!baz$bat"
   end
 end

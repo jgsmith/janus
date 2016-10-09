@@ -70,11 +70,11 @@ defmodule MessageGrammar do
 
   @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments([candidate_segment | remaining], [h | spec]) when is_binary(h) do
-    cond do
-      candidate_segment.name == h ->
-        {status, {gathered, truely_remaining}} = gather_segments(remaining, spec)
-        {status, {[candidate_segment] ++ gathered, truely_remaining}}
-      true -> {:error, {[], [candidate_segment] ++ remaining}}
+    if candidate_segment.name == h do
+      {status, {gathered, truely_remaining}} = gather_segments(remaining, spec)
+      {status, {[candidate_segment | gathered], truely_remaining}}
+    else
+      {:error, {[], [candidate_segment] ++ remaining}}
     end
   end
 
@@ -83,16 +83,15 @@ defmodule MessageGrammar do
     case gather_segments(segments, spec) do
       {:ok, {[parent | children], remaining}} ->
         {:ok, {[parent |> Segment.with_children(children)], remaining}}
-      {:ok, {[], remaining}} -> {:ok, {[], remaining}}
-      {:error, stuff} -> {:error, stuff}
+      anything -> anything
     end
   end
 
   @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments(segments, [:optional | spec]) do
     case gather_segments(segments, spec) do
-      {:ok, stuff} -> {:ok, stuff}
       {:error, _} -> {:ok, {[], segments}}
+      anything -> anything
     end
   end
 
@@ -102,7 +101,7 @@ defmodule MessageGrammar do
       {:ok, {gathered, remaining}} ->
         {more_gathered, truely_remaining} = gather_repeating_spec(remaining, spec)
         {:ok, {gathered ++ more_gathered, truely_remaining}}
-      {:error, stuff} -> {:error, stuff}
+      anything -> anything
     end
   end
 

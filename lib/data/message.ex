@@ -14,31 +14,44 @@ defmodule Mensendi.Data.Message do
   end
 
   @spec from_string(String.t) :: Message.t
-  def from_string(text) do
-    if String.starts_with?(text, "MSH") do
-      delimiters =
-        %Delimiters{}
-        |> Delimiters.with_fields(String.at(text, 3))            # |
-        |> Delimiters.with_components(String.at(text, 4))        # ^
-        |> Delimiters.with_repetitions(String.at(text, 5))       # ~
-        |> Delimiters.with_escapes(String.at(text, 6))           # \
-        |> Delimiters.with_subcomponents(String.at(text, 7))     # &
+  def from_string(text =  <<
+                            "MSH",
+                            fields        :: bytes-size(1),
+                            components    :: bytes-size(1),
+                            repetitions   :: bytes-size(1),
+                            escapes       :: bytes-size(1),
+                            subcomponents :: bytes-size(1),
+                            _ :: binary
+                          >>) do
 
-      segments =
-        text
-        |> String.trim_trailing(delimiters.segments)
-        |> String.split(delimiters.segments)
-        |> Enum.map(&(Segment.from_string(&1, delimiters)))
+    delimiters =
+      %Delimiters{}
+      |> Delimiters.with_fields(fields)               # |
+      |> Delimiters.with_components(components)       # ^
+      |> Delimiters.with_repetitions(repetitions)     # ~
+      |> Delimiters.with_escapes(escapes)             # \
+      |> Delimiters.with_subcomponents(subcomponents) # &
 
-      { :ok,
-        %Message{
-          delimiters: delimiters,
-          segments: segments
-        }
+    segments =
+      text
+      |> String.trim_trailing(delimiters.segments)
+      |> String.split(delimiters.segments)
+      |> Enum.map(&(Segment.from_string(&1, delimiters)))
+
+    { :ok,
+      %Message{
+        delimiters: delimiters,
+        segments: segments
       }
-    else
-      { :error, "First segment is not MSH" }
-    end
+    }
+  end
+
+  def from_string(<<"MSH", _ :: binary>>) do
+    {:error, "First segment is MSH but not long enough"}
+  end
+  
+  def from_string(_) do
+    {:error, "First segment is not MSH"}
   end
 
   @spec to_string(Message.t) :: String.t
@@ -59,21 +72,28 @@ defmodule Mensendi.Data.Message do
     #
     # as long as we can fit the structure to the message, we'll pass it along
     # if there are segments we don't know about, or don't fit, we ignore them
-    case message |> build_structure(structure) do
-      {:ok, new_message} -> {:ok, new_message }
-      {:error, stuff}    -> {:error, stuff}
-    end
+    message
+    |> build_structure(structure)
   end
 
   @spec build_structure(Message.t, String.t) :: List
   defp build_structure(message, structure) do
-    case structure
-         |> MessageGrammar.compile
-         |> MessageGrammar.parse(message.segments)
-    do
-      {:ok, {list, []}} -> {:ok, %Message{delimiters: message.delimiters, segments: list}}
-      {:error, stuff}   -> {:error, stuff}
-    end
+    structure
+    |> MessageGrammar.compile
+    |> MessageGrammar.parse(message.segments)
+    |> finalize_structure(message.delimiters)
+  end
+
+  defp finalize_structure({:ok, {list, []}}, delimiters) do
+    {:ok, %Message{delimiters: delimiters, segments: list}}
+  end
+
+  defp finalize_structure({:ok, segments = {_, _}}, _) do
+    {:error, segments}
+  end
+
+  defp finalize_structure(everything = {:error, _}, _) do
+    everything
   end
 
   @spec segments(Message.t, String.t) :: List
