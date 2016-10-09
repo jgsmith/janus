@@ -1,61 +1,33 @@
 defmodule Mensendi.DSL.Segment do
+  alias Mensendi.DSL.DSLHelpers
+
   @doc false
   defmacro __using__(_opts) do
     quote do
       import unquote(__MODULE__)
 
-      @field_names [:segment_name]
-      @field_types [:ST]
+      @fields [{:segment_name, :ST}]
 
       @before_compile unquote(__MODULE__)
     end
   end
 
-  defmacro field(name, type \\ :ST) do
-    # make sure we have the data type loaded if it's defined - so we don't do it
-    # later, when we're trying to pour a raw segment into a structured segment
+  defmacro field(name, type) do
     Module.concat([:Mensendi, :DataTypes, type])
     |> Code.ensure_loaded
 
     quote do
-      @field_names [unquote(name) | @field_names]
-      @field_types [unquote(type) | @field_types]
-
-      def unquote(String.to_atom("with_" <> Atom.to_string(name)))(segment, data) do
-        unquote({
-          :put_in,
-          [context: __MODULE__, import: Kernel],
-          [{
-            {
-              :.,
-              [],
-              [{:segment, [], __MODULE__},
-               name
-              ]
-            },
-            [],
-            []
-          },
-          {:data, [], __MODULE__}
-          ]
-        })
-      end
+      @fields [{unquote(name), unquote(type)} | @fields]
     end
   end
 
   @doc false
   defmacro __before_compile__(_env) do
-    # quote do
-    #   @field_names Enum.reverse(@field_names)
-    #   @field_types Enum.reverse(@field_types)
-    # end
-
-    field_names = Enum.reverse(Module.get_attribute(__CALLER__.module, :field_names))
-    field_types = Enum.reverse(Module.get_attribute(__CALLER__.module, :field_types))
+    fields = Enum.reverse(Module.get_attribute(__CALLER__.module, :fields))
 
     module_name = Module.split(__CALLER__.module) |> Enum.join(".") |> String.to_atom
 
-    field_struct = List.zip([field_names, field_types])
+    field_struct = fields
                    |> List.foldr([], fn({name, type}, acc) ->
                      Keyword.put(acc, name, {
                        :%, [], [{
@@ -66,7 +38,7 @@ defmodule Mensendi.DSL.Segment do
                      })
                    end)
 
-    type_struct = List.zip([field_names, field_types])
+    type_struct = fields
                   |> List.foldr([], fn({name, type}, acc) ->
                     Keyword.put(acc, name, {
                       {:., [], [{
@@ -127,16 +99,23 @@ defmodule Mensendi.DSL.Segment do
         ]
       })
 
-      def with_segment_name(segment, value) do
-        put_in(segment.segment_name, value)
-      end
+      # @spec with_segment_name(unquote(__MODULE__).t, Mendensi.Data.ST.t) :: unquote(__MODULE__).t
+      # def with_segment_name(segment, value) do
+      #   put_in(segment.segment_name, value)
+      # end
 
+      unquote(fields |> DSLHelpers.field_functions(__CALLER__.module))
+
+      @fields Enum.reverse(@fields)
+
+      @spec from_segment(Mensendi.Data.Segment.t) :: unquote(__CALLER__.module).t
       def from_segment(segment) do
         # return an object with the right type and info pulled from the segment
-        List.zip([Enum.reverse(@field_names), Enum.reverse(@field_types), segment.fields])
+        List.zip([@fields, segment.fields])
         |> create_derivative_segment(__MODULE__, %__MODULE__{})
       end
 
+      @spec to_segment(unquote(__CALLER__.module).t) :: Mensendi.Data.Segment.t
       def to_segment(data) do
         # return a %Segment{} object with the right data in the right place
 
@@ -144,19 +123,16 @@ defmodule Mensendi.DSL.Segment do
     end
   end
 
+  @doc false
   def create_derivative_segment(field_pairs, module, empty_target) do
     # field_pairs: [{name, type, %Field{}}]
     field_pairs |> List.foldr(empty_target,
-      fn({name, type, fields}, acc) ->
+      fn({{name, type}, fields}, acc) ->
         data_type = Module.concat([:Mensendi, :DataTypes, type])
         Code.ensure_loaded(data_type)
-        with_method = String.to_atom("with_" <> Atom.to_string(name))
+        with_method = :"with_#{name}"
         apply(module, with_method, [acc,
-          Enum.map(fields,
-            fn(field) ->
-              apply(data_type, :from_field, [field])
-            end
-          )
+          fields |> Enum.map(&(apply(data_type, :from_field, [&1])))
         ])
       end
     )

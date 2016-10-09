@@ -13,7 +13,9 @@ defmodule Mensendi.Data.Message do
     %Message{message | delimiters: delimiters}
   end
 
-  @spec from_string(String.t) :: Message.t
+  def from_string(raw_hl7)
+
+  @spec from_string(String.t) :: {:ok, Message.t} | {:error, String.t}
   def from_string(text =  <<
                             "MSH",
                             fields        :: bytes-size(1),
@@ -49,7 +51,7 @@ defmodule Mensendi.Data.Message do
   def from_string(<<"MSH", _ :: binary>>) do
     {:error, "First segment is MSH but not long enough"}
   end
-  
+
   def from_string(_) do
     {:error, "First segment is not MSH"}
   end
