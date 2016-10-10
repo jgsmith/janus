@@ -1,6 +1,14 @@
 defmodule Mensendi.Data.SubComponent do
   # This handles all of the escaping/unescaping of stuff in the string
   # TODO: escape/unescape code points for UTF support
+
+  @doc """
+
+  ## Example
+      iex> delimiters = %Mensendi.Data.Delimiters{}
+      iex> "2^6" |> Mensendi.Data.SubComponent.encoded(delimiters)
+      "2\\\\S\\\\6"
+  """
   def encoded(string, delimiters) do
     string
     |> escape_character(delimiters.escapes, "E", delimiters)
@@ -10,6 +18,13 @@ defmodule Mensendi.Data.SubComponent do
     |> escape_character(delimiters.repetitions, "R", delimiters)
   end
 
+  @doc """
+
+  ## Example
+      iex> delimiters = %Mensendi.Data.Delimiters{}
+      iex> "2\\\\S\\\\6" |> Mensendi.Data.SubComponent.decoded(delimiters)
+      "2^6"
+  """
   def decoded(text, delimiters) do
     text
     |> unescape_character(delimiters.fields, "F", delimiters)

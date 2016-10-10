@@ -3,19 +3,44 @@ defmodule MessageGrammarTest do
   doctest MessageGrammar
 
   test "compile" do
-    grammar = MessageGrammar.compile("MSH <PID [PD1] [PV1]>")
-    assert grammar == %MessageGrammar{
-      spec: ["MSH", [:with_children, "PID", [:optional, "PD1"], [:optional, "PV1"]]]
-    }
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH <PID [PD1] [PV1]>")
+    assert spec == [
+      "MSH",
+      [:with_children,
+        "PID",
+        [:optional, "PD1"],
+        [:optional, "PV1"]
+      ]
+    ]
 
-    grammar2 = MessageGrammar.compile("MSH {<PID [PD1] [PV1]>}")
-    assert grammar2 == %MessageGrammar{
-      spec: ["MSH", [:repeatable, [:with_children, "PID", [:optional, "PD1"], [:optional, "PV1"]]]]
-    }
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH {<PID [PD1] [PV1]>}")
+    assert spec == [
+      "MSH",
+      [:repeatable,
+        [:with_children,
+          "PID",
+          [:optional, "PD1"],
+          [:optional, "PV1"]
+        ]
+      ]
+    ]
   end
 
   test "allowed_segments" do
-    grammar = MessageGrammar.compile("MSH <PID [PD1] [PV1]>")
-    assert MessageGrammar.allowed_segments(grammar) == MapSet.new(["MSH", "PID", "PD1", "PV1"])
+    allowed =
+      "MSH <PID [PD1] {PV1} {[<FOO>]}>"
+      |> MessageGrammar.compile
+      |> MessageGrammar.allowed_segments
+
+    assert allowed == MapSet.new(["MSH", "PID", "PD1", "PV1", "FOO"])
+  end
+
+  test "optional repeating" do
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH [{ENV}] [{<FOO>}]")
+    assert spec == [
+      "MSH",
+      [:optional, [:repeatable, "ENV"]],
+      [:optional, [:repeatable, [:with_children, "FOO"]]]
+    ]
   end
 end

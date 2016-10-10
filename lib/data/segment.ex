@@ -38,7 +38,7 @@ defmodule Mensendi.Data.Segment do
     |> Enum.join(delimiters.fields)
   end
 
-  def from_string(text, delimiters) do
+  def from_string(text, delimiters \\ %Delimiters{}) do
     split_string =
       text
       |> String.trim_trailing(delimiters.fields)
