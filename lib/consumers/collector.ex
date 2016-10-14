@@ -11,7 +11,7 @@ defmodule Mensendi.Consumers.Collector do
 
   @doc false
   def init(_) do
-    {:consumer, []}
+    {:consumer, {[], :queue.new}}
   end
 
   @doc """
@@ -19,18 +19,36 @@ defmodule Mensendi.Consumers.Collector do
 
   Retrieved events are cleared. Each call returns the events collected since the last call.
   """
-  @spec retrieve(PID) :: List
-  def retrieve(pid) do
-    GenStage.call(pid, :retrieve)
+  @spec retrieve(PID, non_neg_integer) :: List
+  def retrieve(pid, count \\ 0) do
+    GenStage.call(pid, {:retrieve, count})
   end
 
   @doc false
-  def handle_events(events, from, list) do
-    {:noreply, [], list ++ events}
+  def handle_events(events, from, {list, q}) do
+    dispatch_events({list ++ events, q})
+  end
+
+  def dispatch_events({list, q}) do
+    available = Enum.count(list)
+    with {{waiting_from, wanted}, new_queue} when available >= wanted <- :queue.out(q) do
+      GenStage.reply(waiting_from, Enum.take(list, wanted))
+      {:noreply, [], {Enum.drop(list, wanted), new_queue}}
+    else
+      _ -> {:noreply, [], {list, q}}
+    end
   end
 
   @doc false
-  def handle_call(:retrieve, _from, list) do
-    {:reply, list, [], []}
+  def handle_call({:retrieve, 0}, _from, {list, q}) do
+    {:reply, list, [], {[], q}}
+  end
+
+  def handle_call({:retrieve, count}, from, {list, q}) do
+    if Enum.count(list) >= count do
+      {:reply, list, [], {[], q}}
+    else
+      {:noreply, [], {list, :queue.in({from, count}, q)}}
+    end
   end
 end

@@ -12,12 +12,12 @@ defmodule Mensendi.Producers.SimpleStreamTest do
     GenStage.sync_subscribe(collector, to: simple, max_demand: 20)
 
     SimpleStream.inject(simple, "This is a string")
-    assert Collector.retrieve(collector) |> :binary.list_to_bin == "This is a string"
+    assert Collector.retrieve(collector, 16) |> :binary.list_to_bin == "This is a string"
 
     SimpleStream.inject(simple, "This is a string")
     SimpleStream.inject(simple, "This is a string")
     SimpleStream.inject(simple, "This is a string")
-    :timer.sleep(100) # so the injected data can make its way through the system
-    assert Collector.retrieve(collector) |> :binary.list_to_bin == "This is a stringThis is a stringThis is a string"
+    :timer.sleep(1) # so the injected data can make its way through the system
+    assert Collector.retrieve(collector, 48) |> :binary.list_to_bin == "This is a stringThis is a stringThis is a string"
   end
 end
