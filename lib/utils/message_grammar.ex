@@ -1,5 +1,6 @@
-defmodule MessageGrammar do
+defmodule Mensendi.Utils.MessageGrammar do
   alias Mensendi.Data.Segment
+  alias __MODULE__
 
   @type t :: %MessageGrammar{spec: List}
 
@@ -45,7 +46,7 @@ defmodule MessageGrammar do
   @spec drop_unknown_segments(List, MapSet) :: List
   defp drop_unknown_segments(segments, grammar) do
     allowed = allowed_segments(grammar)
-    Enum.filter(segments, &(MapSet.member?(allowed, &1.name)))
+    Enum.filter(segments, &(MapSet.member?(allowed, &1.segment_name)))
   end
 
   @spec gather_segments([Segment.t], []) :: {:ok, {[], [Segment.t]}}
@@ -70,7 +71,7 @@ defmodule MessageGrammar do
 
   @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
   defp gather_segments([candidate_segment | remaining], [h | spec]) when is_binary(h) do
-    if candidate_segment.name == h do
+    if candidate_segment.segment_name == h do
       {status, {gathered, truely_remaining}} = gather_segments(remaining, spec)
       {status, {[candidate_segment | gathered], truely_remaining}}
     else

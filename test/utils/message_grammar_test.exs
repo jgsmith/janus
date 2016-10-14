@@ -1,4 +1,5 @@
-defmodule MessageGrammarTest do
+defmodule Mensendi.Utils.MessageGrammarTest do
+  alias Mensendi.Utils.MessageGrammar
   use ExUnit.Case
   doctest MessageGrammar
 

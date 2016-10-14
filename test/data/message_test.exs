@@ -17,11 +17,11 @@ defmodule Mensendi.Data.MessageTest do
 
     assert message.delimiters.fields == "#"
     assert Enum.count(message.segments) == 5
-    assert Enum.map(message.segments, &(&1.name)) == ["MSH", "PID", "PD1", "OBR", "OBX"]
+    assert Enum.map(message.segments, &(&1.segment_name)) == ["MSH", "PID", "PD1", "OBR", "OBX"]
 
     output_message = message
     |> Message.with_delimiters(%Delimiters{})
-    |> Message.to_string
+    |> to_string
 
     expected_message =
       ~s"""
@@ -74,7 +74,7 @@ defmodule Mensendi.Data.MessageTest do
 
     {:ok, structured_message} = message |> Message.with_structure("MSH <PID [PV1]>")
 
-    assert (structured_message |> Message.to_string) == expected_message
+    assert (structured_message |> to_string) == expected_message
   end
 
   test "segments" do
@@ -95,6 +95,8 @@ defmodule Mensendi.Data.MessageTest do
 
 
     {:ok, structured_message} = message |> Message.with_structure("MSH {<PID [PV1]>}")
+
+    assert Enum.count(structured_message) == 6
 
     assert Enum.count(Message.segments(structured_message, "MSH")) == 1
     assert Enum.count(Message.segments(structured_message, "PID")) == 3

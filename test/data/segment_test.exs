@@ -18,7 +18,7 @@ defmodule Mensendi.Data.SegmentTest do
 
   test "to_string" do
     segment = %Segment{
-      name: "ZZZ",
+      segment_name: "ZZZ",
       fields: [
         [%Field{components: [%Component{subcomponents: {"ZZZ"}}]}],
         [%Field{}],
@@ -37,5 +37,23 @@ defmodule Mensendi.Data.SegmentTest do
         repetitions: "$"
       }) ==
       "ZZZ!!!ABC#123!foo@bar!baz$bat"
+  end
+
+  test "Enum.count" do
+    segment = %Segment{
+      segment_name: "ZZZ",
+      children: [%Segment{segment_name: "ZZY", children: [%Segment{segment_name: "ZZW"}]}],
+      fields: [
+        [%Field{components: [%Component{subcomponents: {"ZZZ"}}]}],
+        [%Field{}],
+        [%Field{}],
+        [%Field{components: [%Component{subcomponents: {"ABC","123"}}]}],
+        [%Field{components: [%Component{subcomponents: {"foo"}}, %Component{subcomponents: {"bar"}}]}],
+        [%Field{components: [%Component{subcomponents: {"baz"}}]},
+         %Field{components: [%Component{subcomponents: {"bat"}}]}]
+      ]
+    }
+
+    assert Enum.count(segment) == 2
   end
 end
