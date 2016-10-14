@@ -1,9 +1,9 @@
 defmodule Mensendi.Data.Segment do
   alias Mensendi.Data.{Component, Delimiters, Field, Segment}
 
-  @type t :: %Segment{name: String.t, children: List, fields: List}
+  @type t :: %Segment{segment_name: String.t, children: List, fields: List}
 
-  defstruct [name: "", children: [], fields: []]
+  defstruct [segment_name: "", children: [], fields: []]
 
   @special_segments ["MSH", "BHS", "FHS"]
 
@@ -24,7 +24,7 @@ defmodule Mensendi.Data.Segment do
     |> Enum.filter(&(is_binary(&1) and &1 != ""))
     |> Enum.join(delimiters.segments)
 
-    if segment.name in @special_segments do
+    if segment.segment_name in @special_segments do
       segment_string_with_delimiters(potential_string, delimiters)
     else
       potential_string
@@ -46,7 +46,7 @@ defmodule Mensendi.Data.Segment do
 
     {:ok, name} = Enum.fetch(split_string, 0)
     %Segment{
-      name: name,
+      segment_name: name,
       fields: Enum.map(split_string,
         fn(field) ->
           field
@@ -58,17 +58,17 @@ defmodule Mensendi.Data.Segment do
   end
 
   def with_child(segment, child) do
-    %Segment{segment | children: (segment.children ++ [child])}
+    Map.put(segment, :children, segment.children ++ [child])
   end
 
   def with_children(segment, children) do
-    %Segment{segment | children: (segment.children ++ children)}
+    Map.put(segment, :children, segment.children ++ children)
   end
 
   # N.B.: The indices start at zero, not 1
   @spec el(Segment.t, {Integer, Integer, Integer}) :: List
   def el(segment, {fieldId, componentId, subcomponentId}) do
-    Access.get(segment.fields, fieldId, [])
+    Access.get(segment.fields, [fieldId], [])
     |> Enum.map(fn(field) ->
         field
         |> Field.get_component(componentId)
@@ -92,6 +92,24 @@ defmodule Mensendi.Data.Segment do
   @spec children(Segment.t, List | MapSet) :: List
   def children(segment, names) when not is_binary(names) do
     set = MapSet.new(names)
-    Enum.filter(segment.children, &(MapSet.member?(set, &1.name)))
+    Enum.filter(segment.children, &(MapSet.member?(set, &1.segment_name)))
+  end
+
+  defimpl Enumerable, for: Segment do
+    def count(%Segment{children: children}) do
+      {:ok, Enum.reduce(children, 0, &(1 + Enum.count(&1) + &2))}
+    end
+
+    def member?(%Segment{children: children}, segment_name) do
+      {:ok, Enum.any?(children, &(&1.segment_name == segment_name || Enum.member?(&1, segment_name)))}
+    end
+
+    def reduce(_, {:halt, acc}, _fun),                      do: {:halted, acc}
+    def reduce(segment, {:suspend, acc}, fun),              do: {:suspended, acc, &reduce(segment, &1, fun)}
+    def reduce(%Segment{children: []}, {:cont, acc}, _fun), do: {:done, acc}
+
+    def reduce(segment = %Segment{children: [h | t]}, {:cont, acc}, fun) do
+      reduce(%{segment | children: t}, fun.(h, acc), fun)
+    end
   end
 end

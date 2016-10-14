@@ -23,7 +23,7 @@ defmodule Mensendi.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :timex]]
+    [applications: [:gen_stage, :logger, :timex]]
   end
 
   # Dependencies can be Hex packages:
@@ -37,11 +37,13 @@ defmodule Mensendi.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:benchfella, "~> 0.3.0", only: :dev},
       {:dogma, "~> 0.1", only: :dev},
       {:earmark, "~> 1.0", override: true, only: :dev},
       {:excheck, "~> 0.4.0", only: [:dev, :test] },
       {:excoveralls, "~> 0.5", only: [:dev, :test]},
       {:ex_doc, "~>0.12", only: :dev},
+      {:gen_stage, "~> 0.4"},
       {:timex, "~> 3.0"},
       {:triq, github: "triqng/triq", only: [:dev, :test]}
     ]

@@ -1,4 +1,11 @@
 defmodule Mensendi.Data.Delimiters do
+  @moduledoc """
+  Represents the various delimiters used in HL7 messages.
+
+  *N.B.:* This does not manage the delimiters used in MLLP framing.
+  See `Mensendi.Data.MLLPBuffer` for managing MLLP framing.
+  """
+
   alias Mensendi.Data.Delimiters
 
   @type t :: %Delimiters{

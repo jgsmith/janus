@@ -1,5 +1,6 @@
 defmodule Mensendi.DSL.Message do
   alias Mensendi.Data.{Message, MessageEvent}
+  alias Mensendi.Utils.MessageGrammar
 
   @doc false
   defmacro __using__(_opts) do
