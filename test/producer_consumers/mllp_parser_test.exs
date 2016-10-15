@@ -32,7 +32,6 @@ defmodule Mensendi.ProducerConsumers.MLLPParserTest do
     SimpleStream.inject(simple, "garbage")
     SimpleStream.inject(simple, mllp_message)
     SimpleStream.inject(simple, "more garbage")
-    :timer.sleep(100) # so the injected data can make its way through the system    
-    assert Collector.retrieve(collector) |> Enum.join("") |> String.replace("\r", "\n") == hl7_message
+    assert Collector.retrieve(collector, 1) |> Enum.join("") |> String.replace("\r", "\n") == hl7_message
   end
 end
