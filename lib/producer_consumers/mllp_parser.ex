@@ -19,7 +19,7 @@ defmodule Mensendi.ProducerConsumers.MLLPParser do
 
   @doc false
   def init(buffer) do
-    {:producer_consumer, %{demand: 0, buffer: %{buffer | buffer: << >>}, producers: %{}}}
+    {:producer_consumer, %{demand: 0, buffer: %{buffer | buffer: << >>}}}
   end
 
   defp dispatch_messages(messages, %{buffer: buffer} = state) do
@@ -31,14 +31,11 @@ defmodule Mensendi.ProducerConsumers.MLLPParser do
   end
 
   @doc false
-  def handle_events(events, from, %{producers: producers} = state) do
-    updated_state = state #%{state | producers: updated_producers}
-    with {:reply, :ok, new_state} <- do_inject_data(events, updated_state) do
+  def handle_events(events, _from, state) do
+    with {:reply, :ok, new_state} <- do_inject_data(events, state) do
       dispatch_messages([], new_state)
     else
-      foo ->
-        IO.puts(inspect(foo))
-        {:noreply, [], updated_state}
+      _ -> {:noreply, [], state}
     end
   end
 

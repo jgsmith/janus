@@ -38,6 +38,7 @@ defmodule Mensendi.Mixfile do
   defp deps do
     [
       {:benchfella, "~> 0.3.0", only: :dev},
+      {:codepagex, "~> 0.1.3"},
       {:dogma, "~> 0.1", only: :dev},
       {:earmark, "~> 1.0", override: true, only: :dev},
       {:excheck, "~> 0.4.0", only: [:dev, :test] },

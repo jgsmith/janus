@@ -25,7 +25,7 @@ defmodule Mensendi.Consumers.Collector do
   end
 
   @doc false
-  def handle_events(events, from, {list, q}) do
+  def handle_events(events, _from, {list, q}) do
     dispatch_events({list ++ events, q})
   end
 

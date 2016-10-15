@@ -10,6 +10,9 @@
 # Where 3rd-party dependencies like ExDoc output generated docs.
 /doc
 
+# Unicode conversion files for codepagex
+/unicode
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
