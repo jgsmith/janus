@@ -4,7 +4,7 @@ defmodule Mensendi.Utils.MessageGrammarTest do
   doctest MessageGrammar
 
   test "compile" do
-    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH <PID [PD1] [PV1]>")
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH (PID [PD1] [PV1])")
     assert spec == [
       "MSH",
       [:with_children,
@@ -14,7 +14,7 @@ defmodule Mensendi.Utils.MessageGrammarTest do
       ]
     ]
 
-    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH {<PID [PD1] [PV1]>}")
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH {(PID [PD1] [PV1])}")
     assert spec == [
       "MSH",
       [:repeatable,
@@ -29,19 +29,20 @@ defmodule Mensendi.Utils.MessageGrammarTest do
 
   test "allowed_segments" do
     allowed =
-      "MSH <PID [PD1] {PV1} {[<FOO>]}>"
+      "MSH (PID [PD1] {PV1} {[(FOO)]}) <ZPM|NTE>"
       |> MessageGrammar.compile
       |> MessageGrammar.allowed_segments
 
-    assert allowed == MapSet.new(["MSH", "PID", "PD1", "PV1", "FOO"])
+    assert allowed == MapSet.new(["MSH", "PID", "PD1", "PV1", "FOO", "ZPM", "NTE"])
   end
 
   test "optional repeating" do
-    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH [{ENV}] [{<FOO>}]")
+    %MessageGrammar{spec: spec} = MessageGrammar.compile("MSH [{ENV}] [{(FOO)}] <ZPM|NTE>")
     assert spec == [
       "MSH",
       [:optional, [:repeatable, "ENV"]],
-      [:optional, [:repeatable, [:with_children, "FOO"]]]
+      [:optional, [:repeatable, [:with_children, "FOO"]]],
+      [:alternates, "ZPM", "NTE"]
     ]
   end
 end

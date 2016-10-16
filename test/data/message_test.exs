@@ -72,7 +72,7 @@ defmodule Mensendi.Data.MessageTest do
       """ |> String.replace("\n", "\r")
           |> String.trim_trailing("\r")
 
-    {:ok, structured_message} = message |> Message.with_structure("MSH <PID [PV1]>")
+    {:ok, structured_message} = message |> Message.with_structure("MSH (PID [PV1])")
 
     assert (structured_message |> to_string) == expected_message
   end
@@ -94,13 +94,15 @@ defmodule Mensendi.Data.MessageTest do
       |> Message.from_string
 
 
-    {:ok, structured_message} = message |> Message.with_structure("MSH {<PID [PV1]>}")
+    {:ok, structured_message} = message |> Message.with_structure("MSH {(PID [PV1])} {<OBR|OBX>}")
 
-    assert Enum.count(structured_message) == 6
+    assert Enum.count(structured_message) == 8
 
     assert Enum.count(Message.segments(structured_message, "MSH")) == 1
     assert Enum.count(Message.segments(structured_message, "PID")) == 3
     assert Enum.count(Message.segments(structured_message, "PV1")) == 0
+    assert Enum.count(Message.segments(structured_message, "OBR")) == 1
+    assert Enum.count(Message.segments(structured_message, "OBX")) == 1
 
     pids = Message.segments(structured_message, "PID")
 

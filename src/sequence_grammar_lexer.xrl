@@ -12,6 +12,9 @@ Rules.
 \>            : {token, {'>', TokenLine}}.
 \{            : {token, {'{', TokenLine}}.
 \}            : {token, {'}', TokenLine}}.
+\(            : {token, {'(', TokenLine}}.
+\)            : {token, {')', TokenLine}}.
+\|            : {token, {'|', TokenLine}}.
 {WHITESPACE}+ : skip_token.
 
 Erlang code.

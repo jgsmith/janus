@@ -25,7 +25,7 @@ defmodule Mensendi.DSL.Segment do
   defmacro __before_compile__(_env) do
     fields = Enum.reverse(Module.get_attribute(__CALLER__.module, :fields))
 
-    module_name = Module.split(__CALLER__.module) |> Enum.join(".") |> String.to_atom
+    module_name = __CALLER__.module
 
     field_struct = fields
                    |> List.foldr([], fn({name, type}, acc) ->
@@ -99,11 +99,6 @@ defmodule Mensendi.DSL.Segment do
         ]
       })
 
-      # @spec with_segment_name(unquote(__MODULE__).t, Mendensi.Data.ST.t) :: unquote(__MODULE__).t
-      # def with_segment_name(segment, value) do
-      #   put_in(segment.segment_name, value)
-      # end
-
       unquote(fields |> DSLHelpers.field_functions(__CALLER__.module))
 
       @fields Enum.reverse(@fields)
@@ -115,17 +110,13 @@ defmodule Mensendi.DSL.Segment do
         |> create_derivative_segment(__MODULE__, %__MODULE__{})
       end
 
-      @spec to_segment(unquote(__CALLER__.module).t) :: Mensendi.Data.Segment.t
-      def to_segment(data) do
-        # return a %Segment{} object with the right data in the right place
-
-      end
+      def name(%{segment_name: [nom | _]} = _segment), do: nom.value
     end
   end
 
   @doc false
   def create_derivative_segment(field_pairs, module, empty_target) do
-    # field_pairs: [{name, type, %Field{}}]
+    # field_pairs: [{{name, type}, %Field{}}]
     field_pairs |> List.foldr(empty_target,
       fn({{name, type}, fields}, acc) ->
         data_type = Module.concat([:Mensendi, :DataTypes, type])

@@ -45,6 +45,7 @@ defmodule Mensendi.Mixfile do
       {:excoveralls, "~> 0.5", only: [:dev, :test]},
       {:ex_doc, "~>0.12", only: :dev},
       {:gen_stage, "~> 0.4"},
+      {:ok_jose, "~> 2.0.0"},
       {:timex, "~> 3.0"},
       {:triq, github: "triqng/triq", only: [:dev, :test]}
     ]

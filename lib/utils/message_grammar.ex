@@ -1,13 +1,14 @@
 defmodule Mensendi.Utils.MessageGrammar do
   alias Mensendi.Data.Segment
   alias __MODULE__
+  use OkJose
 
   @type t :: %MessageGrammar{spec: List}
 
   defstruct [spec: []]
 
-  @spec compile(String.t) :: MessageGrammar.t
-  def compile(description) do
+  @spec compile(String.t|MessageGrammar.t) :: MessageGrammar.t
+  def compile(description) when is_binary(description) do
     {:ok, tokens, _} = description |> to_char_list |> :sequence_grammar_lexer.string
     {:ok, list}      = :sequence_grammar_parser.parse(tokens)
     %MessageGrammar{spec: list}
@@ -32,92 +33,96 @@ defmodule Mensendi.Utils.MessageGrammar do
     []
   end
 
-  def parse(grammar, segments) do
+  def parse(%{spec: spec} = grammar, segments) do
     case segments
          |> drop_unknown_segments(grammar)
-         |> gather_segments(grammar.spec)
+         |> gather_segments(spec)
     do
-      {:ok, {gathered, []}}        -> {:ok, {gathered, []}}
-      {:ok, {gathered, remaining}} -> {:error, {gathered, remaining}}
-      {:error, stuff}              -> {:error, stuff}
+      {:ok, {gathered, []}} -> {:ok, {gathered, []}}
+      {:ok, {_, _}}         -> {:error, "segments remaining after structuring"}
+      {:error, stuff}       -> {:error, stuff}
     end
   end
 
   @spec drop_unknown_segments(List, MapSet) :: List
   defp drop_unknown_segments(segments, grammar) do
     allowed = allowed_segments(grammar)
-    Enum.filter(segments, &(MapSet.member?(allowed, &1.segment_name)))
+    {[], Enum.filter(segments, &(MapSet.member?(allowed, &1.__struct__.name(&1))))}
   end
 
-  @spec gather_segments([Segment.t], []) :: {:ok, {[], [Segment.t]}}
-  defp gather_segments(segments, []) do
-    {:ok, {[], segments}}
+  @spec gather_segments({[Segment.t], [Segment.t]}, [String.t|atom|List]) :: {:ok, {[Segment.t], [Segment.t]}}
+                                                                           | {:error, String.t}
+  defp gather_segments(segments, spec)
+
+  defp gather_segments({found, remaining}, []) do
+    {:ok, {found, remaining}}
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments(segments, [h | spec]) when is_list(h) do
-    case gather_segments(segments, h) do
-      {:ok, {gathered, remaining}} ->
-        {status, {more_gathered, truely_remaining}} = gather_segments(remaining, spec)
-        {status, {gathered ++ more_gathered, truely_remaining}}
-      {:error, stuff} -> {:error, stuff}
+  defp gather_segments({found, remaining}, [h | spec]) when is_list(h) do
+    case gather_segments({found, remaining}, h) do
+      {:ok, {gathered, truely_remaining}} -> gather_segments({gathered, truely_remaining}, spec)
+      anything                            -> anything
     end
   end
 
-  @spec gather_segments([], [String.t|atom|List]) :: {:error, {[], []}}
-  defp gather_segments([], [h | _spec]) when is_binary(h) do
-    {:error, {[], []}}
+  defp gather_segments({_, []}, [h | _spec]) when is_binary(h) do
+    {:error, "expecting another segment (#{h}) but no segments remain"}
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments([candidate_segment | remaining], [h | spec]) when is_binary(h) do
+  defp gather_segments({gathered, [candidate_segment | remaining]}, [h | spec]) when is_binary(h) do
     if candidate_segment.segment_name == h do
-      {status, {gathered, truely_remaining}} = gather_segments(remaining, spec)
-      {status, {[candidate_segment | gathered], truely_remaining}}
+      gather_segments({gathered ++ [candidate_segment], remaining}, spec)
     else
-      {:error, {[], [candidate_segment] ++ remaining}}
+      {:error, "missing expected segment (#{h})"}
     end
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments(segments, [:with_children | spec]) do
-    case gather_segments(segments, spec) do
-      {:ok, {[parent | children], remaining}} ->
-        {:ok, {[parent |> Segment.with_children(children)], remaining}}
+  defp gather_segments({gathered, remaining}, [:with_children | spec]) do
+    case gather_segments({[], remaining}, spec) do
+      {:ok, {[parent | children], truely_remaining}} ->
+        {:ok, {gathered ++ [parent |> Segment.with_children(children)], truely_remaining}}
       anything -> anything
     end
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments(segments, [:optional | spec]) do
+  defp gather_segments({_,_} = segments, [:optional | spec]) do
     case gather_segments(segments, spec) do
-      {:error, _} -> {:ok, {[], segments}}
+      {:error, _} -> {:ok, segments}
       anything -> anything
     end
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Segment.t]}}
-  defp gather_segments(segments, [:repeatable | spec]) do
+  defp gather_segments({_,_} = segments, [:repeatable | spec]) do
     case gather_segments(segments, spec) do
       {:ok, {gathered, remaining}} ->
-        {more_gathered, truely_remaining} = gather_repeating_spec(remaining, spec)
-        {:ok, {gathered ++ more_gathered, truely_remaining}}
+        gather_repeating_spec({gathered, remaining}, spec)
       anything -> anything
     end
   end
 
-  @spec gather_segments([Segment.t], [String.t|atom|List]) :: {:error, {[], [Segment.t]}}
-  defp gather_segments(segments, [h | _spec]) when is_atom(h) do
-    {:error, {[], segments}}
+  defp gather_segments({_,_} = segments, [:alternates | spec]), do: gather_alternate_segments(segments, spec)
+
+  defp gather_segments({_,_}, [h | _]) when is_atom(h) do
+    {:error, "Unknown action (#{h})"}
   end
 
-  @spec gather_repeating_spec([Segment.t], [String.t|atom|List]) :: {atom, {[Segment.t], [Mensendi.Data.Segment.t]}}
+  @spec gather_alternate_segments({[Segment.t], [Segment.t]}, [String.t|List]) :: {:ok, {[Segment.t], [Segment.t]}}
+                                                                                | {:error, String.t}
+  defp gather_alternate_segments(_, []), do: {:error, "No alternatives match"}
+  defp gather_alternate_segments({_, _} = segments, [only_option]), do: gather_segments(segments, [only_option])
+
+  defp gather_alternate_segments({_, _} = segments, [ trial | rest ]) do
+    case gather_segments(segments, [trial]) do
+      {:ok, stuff} -> {:ok, stuff}
+      _            -> gather_alternate_segments(segments, rest)
+    end
+  end
+
+  @spec gather_repeating_spec({[Segment.t], [Segment.t]}, [String.t|atom|List]) :: {:ok, {[Segment.t], [Segment.t]}}
   defp gather_repeating_spec(segments, spec) do
     case gather_segments(segments, spec) do
-      {:ok, {gathered, remaining}} ->
-        {more_gathered, truely_remaining} = gather_repeating_spec(remaining, spec)
-        {gathered ++ more_gathered, truely_remaining}
-      {:error, _} -> {[], segments}
+      {:ok, result} -> gather_repeating_spec(result, spec)
+      {:error, _} -> {:ok, segments}
     end
   end
 end
