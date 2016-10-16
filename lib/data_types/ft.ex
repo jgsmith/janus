@@ -24,4 +24,20 @@ defmodule Mensendi.DataTypes.FT do
   def from_string(string) do
     %FT{value: string}
   end
+
+  def as_string(%{value: value}), do: value
+
+  def to_field(st) do
+    %Field{
+      components: [
+        to_component(st)
+      ]
+    }
+  end
+
+  def to_component(%{value: value} = _st) do
+    %Component{
+      subcomponents: {value}
+    }
+  end
 end

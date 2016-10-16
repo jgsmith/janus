@@ -50,19 +50,48 @@ defmodule Mensendi.DSL.Message do
   @doc false
   defmacro __before_compile__(_env) do
     quote do
+      use OkJose
+
       unquote(process_event_info(nil))
 
       @spec find_message_event(Message.t) :: MessageEvent.t
       def find_message_event(message) do
         # find out if the message type is in our list or not
         msh =
-          List.first(Message.segments(message, "MSH"))
+          message
+          |> Message.segments("MSH")
+          |> List.first
           |> Mensendi.Segments.MSH.from_segment
-        # message_type = msh.message_type.message_event
-        trigger_code = msh.message_type.trigger_event
-        @events |> Enum.find(fn(event) ->
+
+        trigger_code = List.first(msh.message_type).trigger_event.value
+
+        @events
+        |> Enum.find(fn(event) ->
           event.event == trigger_code
         end)
+        |> wrap_found_message_event
+      end
+
+      defp wrap_found_message_event(%MessageEvent{} = event) do
+        {:ok, event}
+      end
+
+      defp wrap_found_message_event(_) do
+        {:error, "No event found"}
+      end
+
+      @spec structure_message(Message.t) :: Message.t
+      def structure_message(message) do
+        with {:ok, %MessageEvent{message_structure: structure}} <- find_message_event(message) do
+          # convert each segment into a named segment data structure
+          # then pass through the Message.structure_message function
+          {:ok, message}
+          |> Message.with_structure(structure)
+          |> Message.with_structured_segments
+          |> ok
+        else
+          _ -> {:error, "no structure found"}
+        end
       end
     end
   end

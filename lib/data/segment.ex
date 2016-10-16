@@ -57,12 +57,28 @@ defmodule Mensendi.Data.Segment do
     }
   end
 
+  def name(%{segment_name: nom} = _segment), do: nom
+
   def with_child(segment, child) do
     Map.put(segment, :children, segment.children ++ [child])
   end
 
   def with_children(segment, children) do
     Map.put(segment, :children, segment.children ++ children)
+  end
+
+  def to_structured_segment(%{segment_name: name, children: children} = segment) do
+    module = Module.concat([Mensendi, Segments, String.to_atom(name)])
+    if Code.ensure_loaded?(module) do
+      segment
+      |> module.from_segment
+      |> with_children(
+        children
+        |> Enum.map(&to_structured_segment/1)
+      )
+    else
+      segment
+    end
   end
 
   # N.B.: The indices start at zero, not 1
@@ -95,9 +111,13 @@ defmodule Mensendi.Data.Segment do
     Enum.filter(segment.children, &(MapSet.member?(set, &1.segment_name)))
   end
 
+  def count(%{children: children} = _segment) do
+    Enum.reduce(children, 0, &(1 + count(&1) + &2))
+  end
+
   defimpl Enumerable, for: Segment do
-    def count(%Segment{children: children}) do
-      {:ok, Enum.reduce(children, 0, &(1 + Enum.count(&1) + &2))}
+    def count(segment) do
+      {:ok, Segment.count(segment)}
     end
 
     def member?(%Segment{children: children}, segment_name) do

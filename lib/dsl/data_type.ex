@@ -118,30 +118,18 @@ defmodule Mensendi.DSL.DataType do
         |> Tuple.to_list
         |> create_derivative_component({@components, __MODULE__, %__MODULE__{}})
       end
-
-      @spec to_field(unquote(__CALLER__.module).t) :: Mensendi.Data.Field.t
-      def to_field(data) do
-        # return a %Field{} object with the right data in the right place
-
-      end
-
-      @spec to_component(unquote(__CALLER__.module).t) :: Mensendi.Data.Component.t
-      def to_component(data) do
-        # return a %Component{} object with the right data in the right place
-
-      end
     end
   end
 
   @doc false
   def create_derivative_field(things, meta) do
-    # field_pairs: [{name, type, %Field{}}]
+    # field_pairs: [{{name, type}, %Field{}}]
     create_derivative_thing(things, meta, :from_component)
   end
 
   @doc false
   def create_derivative_component(things, meta) do
-    # field_pairs: [{name, type, %Field{}}]
+    # field_pairs: [{{name, type}, %Field{}}]
     create_derivative_thing(things, meta, :from_string)
   end
 

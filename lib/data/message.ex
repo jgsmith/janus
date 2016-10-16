@@ -60,37 +60,42 @@ defmodule Mensendi.Data.Message do
   #   |> Enum.join(message.delimiters.segments)
   # end
 
-  @spec with_structure(Message.t, String.t) :: Message.t
-  def with_structure(message, structure) do
-    # example structure:
-    #
-    # MSH ... <PID ... {PV1}>
-    #
-    # we always want to solve for "message"
-    #
-    # as long as we can fit the structure to the message, we'll pass it along
-    # if there are segments we don't know about, or don't fit, we ignore them
-    message
-    |> build_structure(structure)
+  @spec with_structure(Message.t, String.t | MessageGrammar.t) :: List
+  def with_structure(message, structure) when is_binary(structure) do
+    with compiled <- MessageGrammar.compile(structure) do
+      with_structure(message, compiled)
+    end
   end
 
-  @spec build_structure(Message.t, String.t) :: List
-  defp build_structure(message, structure) do
-    structure
-    |> MessageGrammar.compile
-    |> MessageGrammar.parse(message.segments)
+  def with_structure(message, structure) do
+    MessageGrammar.parse(structure, message.segments)
     |> finalize_structure(message.delimiters)
+  end
+
+  @spec with_structured_segments(Message.t) :: Message.t
+  def with_structured_segments(message) do
+    {:ok,
+      %{message |
+        segments: message.segments
+                  |> Enum.map(&Segment.to_structured_segment/1)
+      }
+    }
   end
 
   defp finalize_structure({:ok, {list, []}}, delimiters) do
     {:ok, %Message{delimiters: delimiters, segments: list}}
   end
 
-  defp finalize_structure({:ok, segments = {_, _}}, _) do
-    {:error, segments}
+  defp finalize_structure({:ok, {_, remaining}}, _) do
+    remaining_segment_names =
+      remaining
+      |> Enum.map(&(&1.__struct__.name(&1)))
+      |> Enum.join(", ")
+
+    {:error, "unable to structure full message; #{remaining_segment_names} remaining"}
   end
 
-  defp finalize_structure(everything = {:error, _}, _) do
+  defp finalize_structure({:error, _} = everything, _) do
     everything
   end
 
@@ -102,16 +107,23 @@ defmodule Mensendi.Data.Message do
   @spec segments(Message.t, List | MapSet) :: List
   def segments(message, names) when not is_binary(names) do
     set = MapSet.new(names)
-    Enum.filter(message.segments, &(MapSet.member?(set, &1.segment_name)))
+    Enum.filter(message.segments, fn(%{__struct__: module} = segment) ->
+      MapSet.member?(set, module.name(segment))
+    end)
   end
 
   defimpl Enumerable, for: Message do
     def count(%Message{segments: segments}) do
-      {:ok, Enum.reduce(segments, 0, &(Enum.count(&1) + &2 + 1))}
+      {:ok, Enum.reduce(segments, 0, &(Segment.count(&1) + &2 + 1))}
     end
 
     def member?(%Message{segments: segments}, segment_name) do
-      {:ok, Enum.any?(segments, &(&1.segment_name == segment_name || Enum.member?(&1, segment_name)))}
+      {
+        :ok,
+        Enum.any?(segments, fn(%{__struct__: module} = segment) ->
+          module.name(segment) == segment_name || Enum.member?(segment, segment_name)
+        end)
+      }
     end
 
     def reduce(_, {:halt, acc}, _fun),                      do: {:halted, acc}
@@ -137,7 +149,9 @@ defmodule Mensendi.Data.Message do
     @spec to_string(Message.t) :: String.t
     def to_string(message) do
       message.segments
-      |> Stream.map(&(Segment.to_string(&1, message.delimiters)))
+      |> Stream.map(fn(%{__struct__: module} = segment) ->
+        module.to_string(segment, message.delimiters)
+      end)
       |> Stream.filter(&(is_binary(&1) and &1 != ""))
       |> Enum.join(message.delimiters.segments)
     end
