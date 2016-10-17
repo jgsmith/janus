@@ -5,23 +5,6 @@ defmodule Mensendi.Messages.ADTTest do
   use OkJose
   doctest ADT
 
-  test "Selects correct event" do
-    message = ~s"""
-    MSH|^~\\&|CERNER||PriorityHealth||||ADT^A02|Q479004375T431430612|P|2.3
-    EVN|
-    PID|||001677980||SMITH^CURTIS||19680219|M||||||||||929645156318|123456789
-    PV1|
-    """ |> String.replace("\n", "\r")
-
-    event =
-      {:ok, message}
-      |> Message.from_string
-      |> ADT.find_message_event
-      |> ok!
-
-    assert event.event == "A02"
-  end
-
   test "constructs named segment data objects" do
     message = ~s"""
     MSH|^~\\&|CERNER||PriorityHealth||||ADT^A02|Q479004375T431430612|P|2.3
@@ -33,7 +16,7 @@ defmodule Mensendi.Messages.ADTTest do
     structured_message =
       {:ok, message}
       |> Message.from_string
-      |> ADT.structure_message
+      |> Message.structure_message([Mensendi.Messages])
       |> ok!
 
     assert Enum.count(structured_message) == 4
@@ -55,7 +38,8 @@ defmodule Mensendi.Messages.ADTTest do
       {:ok, message}
       |> Message.from_string
       |> ok!
-      |> ADT.structure_message
+      |> Message.structure_message([Mensendi.Messages])
+
     assert error_message == "missing expected segment (EVN)"
   end
 end

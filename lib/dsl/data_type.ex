@@ -35,8 +35,7 @@ defmodule Mensendi.DSL.DataType do
   defmacro __before_compile__(_env) do
     component_pairs = Enum.reverse(Module.get_attribute(__CALLER__.module, :components))
 
-    module_name = Module.split(__CALLER__.module) |> Enum.join(".") |> String.to_atom
-
+    module_name = __CALLER__.module
     field_struct = component_pairs
                    |> List.foldr([], fn({name, type}, acc) ->
                      Keyword.put(acc, name, {

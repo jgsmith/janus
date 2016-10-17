@@ -44,6 +44,40 @@ defmodule Mensendi.Utils.MessageGrammar do
     end
   end
 
+  def uncompile(%{spec: spec} = _grammar) do
+    do_uncompile(spec, "", 0)
+  end
+
+  defp do_uncompile([], "", _), do: ""
+  defp do_uncompile([], acc, _), do: acc
+
+  defp do_uncompile(h, "", _) when is_binary(h), do: h
+  defp do_uncompile(h, acc, idx) when is_binary(h), do: acc <> "\n" <> prefix_ws(idx) <> h
+
+  defp do_uncompile([h | rest], "", idx) when is_binary(h), do: do_uncompile(rest, h, idx)
+  defp do_uncompile([h | rest], acc, idx) when is_binary(h), do: do_uncompile(rest, acc <> " " <> h, idx)
+
+  defp do_uncompile([h | rest], acc, idx) when is_list(h), do: do_uncompile(rest, do_uncompile(h, acc, idx), idx)
+
+  defp do_uncompile([:optional | rest], "", idx), do: "[" <> do_uncompile(rest, "", idx) <> "]"
+  defp do_uncompile([:optional | rest], acc, idx), do: acc <> " [" <> do_uncompile(rest, "", idx) <> "]"
+
+  defp do_uncompile([:repeatable | rest], "", idx), do: "{" <> do_uncompile(rest, "", idx) <> "}"
+  defp do_uncompile([:repeatable | rest], acc, idx), do: acc <> " {" <> do_uncompile(rest, "", idx) <> "}"
+
+  defp do_uncompile([:with_children | rest], "", idx), do: "(\n" <> do_uncompile(rest, "", idx + 1) <> "\n)\n"
+  defp do_uncompile([:with_children | rest], acc, idx), do: acc <> "\n(\n" <> do_uncompile(rest, "", idx) <> "\n)\n"
+
+  defp do_uncompile([:alternates | rest], "", idx), do: "<" <> do_uncompile_alternates(rest, "", idx) <> ">"
+  defp do_uncompile([:alternates | rest], acc, idx), do: acc <> " <" <> do_uncompile_alternates(rest, "", idx) <> ">"
+
+  defp do_uncompile_alternates([h | rest], "", idx), do: do_uncompile_alternates(rest, do_uncompile(h, "", idx), idx)
+  defp do_uncompile_alternates([h | rest], acc, idx), do: do_uncompile_alternates(rest, acc <> "|" <> do_uncompile(h, "", idx), idx)
+
+  defp do_uncompile_alternates([], acc, idx), do: acc
+
+  defp prefix_ws(idx), do: List.duplicate("  ", idx) |> Enum.join
+
   @spec drop_unknown_segments(List, MapSet) :: List
   defp drop_unknown_segments(segments, grammar) do
     allowed = allowed_segments(grammar)
