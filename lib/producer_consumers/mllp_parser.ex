@@ -7,12 +7,6 @@ defmodule Mensendi.ProducerConsumers.MLLPParser do
   # alias __MODULE__
   @moduledoc """
   Provides the unpacking of data from the TCP connection to HL7 messages.
-
-  When starting an InboundMLLPTransport server, pass in the socket that is receiving the data.
-  This is not the socket listening for connections.
-
-  The socket must be created with the options `[:binary, active: :once]` and the owner set
-  to the instance of this server that is given the socket.`
   """
 
   ## GenStage Callbacks
